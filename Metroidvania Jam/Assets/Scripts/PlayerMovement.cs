@@ -18,53 +18,85 @@ public class PlayerMovement : MonoBehaviour
 	// todo: move this into an animations script
 	bool facingR = true;
 	void FaceTowardsVelocity() {
-		if (m.rb.velocity.x > 0.0001f) {
+		if (m.rb.velocity.x > 0.0001f)
+			FaceRight(true);
+		if (m.rb.velocity.x < 0.0001f)
+			FaceRight(false);
+	}
+	void FaceRight(bool right) {
+		if (right) {
 			facingR = true;
 			faceParent.eulerAngles = Vector2.zero;
 		}
-		if (m.rb.velocity.x < 0.0001f) {
+		else {
 			facingR = false;
 			faceParent.eulerAngles = 180 * Vector2.up;
 		}
 	}
 
-	float dashCooldown = 0;
+	public float dashCooldown = 0.3f;
+	public float wallCooldown = 0.2f;
+	float dCooldown = 0;
+	float wCooldown = 0;
 	bool dashing = false;
 	bool slamming = false;
 	bool jumping = false;
 	void FixedUpdate() {
-		//Debug.Log(sliding + " " + dashing + " " + slamming + " " + Time.time + " " + m.GetCharges());
-
-		if (dashCooldown > 0) dashCooldown -= Time.fixedDeltaTime;
-		if (!dashing && inputs.dash && dashCooldown <= 0)
+		//Debug.Log(sliding + " " + dashing + " " + slamming + " " + Time.time + " " + m.GetJumpCharges());
+		
+		// Start ability - dash, slam, or jump
+		if (dCooldown > 0) dCooldown -= Time.fixedDeltaTime;
+		if (wCooldown > 0) wCooldown -= Time.fixedDeltaTime;
+		if (!dashing && inputs.dash && dCooldown <= 0)
 			dashing = true;
-		if (!slamming && inputs.slam)
+		if (!slamming && inputs.slam) {
 			slamming = true;
+			sliding = false;
+		}
 		if (jumping && !inputs.jump)
 			jumping = false;
 
+
 		if (!dashing && !slamming) {
+			// Walk horizontally
 			if (!sliding) {
-				m.SmoothMove(inputs.hAxis);
-				FaceTowardsVelocity();
-			}
-			if (inputs.jump && !jumping) {
-				if (!sliding) {
-					jumping = true;
-					m.Jump();
+				if (wCooldown <= 0) {
+					m.SmoothMove(inputs.hAxis);
+					FaceTowardsVelocity();
 				}
+			}
+			else {
+				int onWall = m.Wallslide();
+				// Move off wall
+				if (onWall == 1) {
+					FaceRight(true);
+					if (inputs.hAxis > 0)
+						m.SmoothMove(inputs.hAxis);
+				}
+				if (onWall == -1) {
+					FaceRight(false);
+					if (inputs.hAxis < 0)
+						m.SmoothMove(inputs.hAxis);
+				}
+			}
+			// Jump / walljump
+			if (inputs.jump && !jumping) {
+				jumping = true;
+				if (!sliding) m.Jump();
 				else {
-					slideCooldown = 0.5f;
+					wCooldown = wallCooldown;
 					m.Walljump();
 				}
+				
 			}
+			// Jetpack
 			if (inputs.jet)
 				m.Jetpack();
 		}
 		else if (dashing) {
 			Vector2 direction = (facingR)? Vector2.right : -Vector2.right;
 			dashing = m.Dash(direction.normalized);
-			if (!dashing) dashCooldown = 0.5f;
+			if (!dashing) dCooldown = dashCooldown;
 		}
 		else if (slamming) {
 			slamming = m.Slam();
@@ -75,19 +107,24 @@ public class PlayerMovement : MonoBehaviour
 
 
 	bool sliding = false;
-	float slideCooldown = 0;
-	void OnTriggerStay2D(Collider2D info) {
+	void OnTriggerEnter2D(Collider2D info) {
 		GameObject other = info.gameObject;
-		if (slideCooldown >= 0) {
+		if (other.tag == "Wall") {
+			sliding = true;
+		}
+	}
+	/*void OnTriggerStay2D(Collider2D info) {
+		GameObject other = info.gameObject;
+		if (slideCooldown >= 0 || slamming) {
 			sliding = false;
 			slideCooldown -= Time.fixedDeltaTime;
 			return;
 		}
 		if (other.tag == "Wall") {
 			sliding = true;
-			m.Wallslide();
+			onWall = m.Wallslide();
 		}
-	}
+	}*/
 	void OnTriggerExit2D(Collider2D info) {
 		GameObject other = info.gameObject;
 		if (other.tag == "Wall") {

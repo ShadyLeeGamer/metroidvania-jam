@@ -123,9 +123,12 @@ public class Movement : MonoBehaviour
 		JumpDirection(fromDegrees, speed);
 	}
 
-	public float wallslideSpeed = 2f;
-	public void Wallslide() {
+	public float wallslideSpeed = 1f;
+	public int Wallslide() {
+		//Debug.Log(onWall);
+		if (onWall == 0) return 0;
 		rb.velocity = new Vector2(rb.velocity.x, -wallslideSpeed);
+		return onWall;
 	}
 
 	public float jetpackSpeed = 2f;
@@ -154,6 +157,7 @@ public class Movement : MonoBehaviour
 
 	// todo: wall + ground crawl for enemies
 	// // hook
+	// // driving
 
 
 
