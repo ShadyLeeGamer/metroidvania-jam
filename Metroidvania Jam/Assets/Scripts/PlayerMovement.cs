@@ -2,15 +2,17 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-[RequireComponent(typeof(Movement))]
+[RequireComponent(typeof(Movement), typeof(PlayerInputs))]
 public class PlayerMovement : MonoBehaviour
 {
 
 	public Transform faceParent;
 
 	Movement m;
+	PlayerInputs inputs;
 	void Start() {
 		m = GetComponent<Movement>();
+		inputs = GetComponent<PlayerInputs>();
 	}
 
 	// todo: move this into an animations script
@@ -26,41 +28,49 @@ public class PlayerMovement : MonoBehaviour
 		}
 	}
 
-
+	float dashCooldown = 0;
 	bool dashing = false;
 	bool slamming = false;
-	void Update() {
-		//Debug.Log(sliding + " " + Time.time + " " + m.GetCharges());
-		if (Input.GetKeyDown(KeyCode.LeftShift))
+	bool jumping = false;
+	void FixedUpdate() {
+		//Debug.Log(sliding + " " + dashing + " " + slamming + " " + Time.time + " " + m.GetCharges());
+
+		if (dashCooldown > 0) dashCooldown -= Time.fixedDeltaTime;
+		if (!dashing && inputs.dash && dashCooldown <= 0)
 			dashing = true;
-		if (Input.GetKeyDown(KeyCode.E))
+		if (!slamming && inputs.slam)
 			slamming = true;
+		if (jumping && !inputs.jump)
+			jumping = false;
 
 		if (!dashing && !slamming) {
 			if (!sliding) {
-				float h = Input.GetAxis("Horizontal");
-				m.SmoothMove(h);
+				m.SmoothMove(inputs.hAxis);
 				FaceTowardsVelocity();
 			}
-			if (Input.GetKeyDown(KeyCode.W)) {
-				if (!sliding) m.Jump();
+			if (inputs.jump && !jumping) {
+				if (!sliding) {
+					jumping = true;
+					m.Jump();
+				}
 				else {
 					slideCooldown = 0.5f;
 					m.Walljump();
 				}
 			}
-			if (Input.GetKey(KeyCode.Space))
+			if (inputs.jet)
 				m.Jetpack();
 		}
 		else if (dashing) {
 			Vector2 direction = (facingR)? Vector2.right : -Vector2.right;
 			dashing = m.Dash(direction.normalized);
+			if (!dashing) dashCooldown = 0.5f;
 		}
 		else if (slamming) {
 			slamming = m.Slam();
 		}
 		
-
+		inputs.Reset();
 	}
 
 
@@ -70,7 +80,7 @@ public class PlayerMovement : MonoBehaviour
 		GameObject other = info.gameObject;
 		if (slideCooldown >= 0) {
 			sliding = false;
-			slideCooldown -= Time.deltaTime;
+			slideCooldown -= Time.fixedDeltaTime;
 			return;
 		}
 		if (other.tag == "Wall") {
