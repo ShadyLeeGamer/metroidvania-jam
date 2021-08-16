@@ -722,12 +722,14 @@ MonoBehaviour:
   dashSpeed: 10
   dashTime: 0.3
   dashEndSpeed: 3
+  dashCharges: 1
   jumpSpeed: 5
   jumpCharges: 4
   walljumpSpeed: 8
   walljumpNormalDegrees: 45
   wallslideSpeed: 1
   jetpackSpeed: 2
+  jetpackUseTime: 3
   slamGravity: 3
 --- !u!50 &717139692
 Rigidbody2D:

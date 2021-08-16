@@ -61,8 +61,14 @@ public class Movement : MonoBehaviour
 	public float dashSpeed = 2f;
 	public float dashTime = 0.8f;
 	public float dashEndSpeed = 0.5f;
+	public int dashCharges = 1;
+	int dCharges = 0;
 	float dTimer = 0;
+	public int GetDashCharges() {
+		return dCharges;
+	}
 	public bool Dash(Vector2 direction) {
+		if (dCharges <= 0) return false;
 		if (dTimer < dashTime) {
 			dTimer += Time.fixedDeltaTime;
 			rb.velocity = dashSpeed * direction;
@@ -70,6 +76,7 @@ public class Movement : MonoBehaviour
 		}
 		else {
 			dTimer = 0;
+			dCharges--;
 			rb.velocity = dashEndSpeed * direction;
 			return false;
 		}
@@ -83,11 +90,13 @@ public class Movement : MonoBehaviour
 	int jCharges = 0;
 	bool onGround = false;
 	int onWall = 0; // =1 for left wall, =-1 for right wall
-	public int GetCharges() {
+	public int GetJumpCharges() {
 		return jCharges;
 	}
 	public void ResetCharges() {
 		jCharges = jumpCharges;
+		dCharges = dashCharges;
+		jetFuel = jetpackUseTime;
 	}
 	public void Jump() {
 		//Debug.Log("Jump" + " " + onGround + " " + onWall);
@@ -120,8 +129,15 @@ public class Movement : MonoBehaviour
 	}
 
 	public float jetpackSpeed = 2f;
-	public void Jetpack() {
-		rb.velocity = new Vector2(rb.velocity.x, jetpackSpeed);
+	public float jetpackUseTime = 3; // fuel
+	float jetFuel = 0;
+	public float Jetpack() {
+		if (jetFuel <= 0) return 0;
+		else {
+			jetFuel -= Time.fixedDeltaTime;
+			rb.velocity = new Vector2(rb.velocity.x, jetpackSpeed);
+			return jetFuel;
+		}
 	}
 
 	public float slamGravity = 3f;
@@ -138,7 +154,6 @@ public class Movement : MonoBehaviour
 
 	// todo: wall + ground crawl for enemies
 	// // hook
-	// // jetpack fuel
 
 
 

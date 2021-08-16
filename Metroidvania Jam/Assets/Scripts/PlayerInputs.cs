@@ -5,11 +5,11 @@ using UnityEngine;
 public class PlayerInputs : MonoBehaviour
 {
 
-	public float hAxis = 0;
-	public bool dash = false;
-	public bool jump = false;
-	public bool slam = false;
-	public bool jet = false;
+	[HideInInspector] public float hAxis = 0;
+	[HideInInspector] public bool dash = false;
+	[HideInInspector] public bool jump = false;
+	[HideInInspector] public bool slam = false;
+	[HideInInspector] public bool jet = false;
 
 	void Start() {
 		Reset();
