@@ -155,6 +155,61 @@ public class Movement : MonoBehaviour
 		}
 	}
 
+
+
+	public float hookThrowSpeed = 10;
+	public float hookRetractTime = 1;
+	public float hookGravity = 1;
+	public float chainLength = 4;
+	public GameObject hookPrefab;
+	Rigidbody2D hook;
+	Rigidbody2D CreateHook() {
+		if (hook != null) Destroy(hook.gameObject);
+		Transform h = Instantiate(hookPrefab).transform;
+		h.parent = transform.Find("Grapple");
+		h.localPosition = Vector2.zero;
+		return h.GetComponent<Rigidbody2D>();
+	}
+ 	public bool ThrowHook(Vector2 direction) { // =true when still throwing
+ 		// Throw the hook
+		if (hook == null) {
+			hook = CreateHook();
+			hook.velocity = hookThrowSpeed * direction;
+			hook.gravityScale = hookGravity;
+		}
+		
+		// If attached to a hookable, dangle the player from hook
+		if (hook.GetComponent<Collider2D>().IsTouchingLayers(7)) {
+			hook.velocity = Vector2.zero;
+			float hookDist = Vector2.Distance(transform.position, hook.transform.position);
+			if (hookDist >= chainLength) {
+				// Pendulum - turn any non-tangent, outward velocity into some tangent
+				// reflect the outward velocity as if circle was a surface?
+			}
+			return false;
+		}
+		// If attached to an enemy, pull both sides together
+		// If forced out of chain range, return false
+		return true; // otherwise still throwing
+	}
+	public bool RetractHook(bool detach) { // =true when still retracting
+		if (hook == null) return false;
+		// Destroy when hook is fully retracted
+		Vector2 delta = hook.transform.position - transform.position;
+		if (delta.magnitude < 0.01f) {
+			Destroy(hook.gameObject);
+			return false;
+		}
+		// Accelerate hook towards me
+		else if (detach) {
+			return true;
+		}
+		// Accelerate towards hook
+		else {
+			return true;
+		}
+	}
+
 	// todo: wall + ground crawl for enemies
 	// // hook
 	// // driving
