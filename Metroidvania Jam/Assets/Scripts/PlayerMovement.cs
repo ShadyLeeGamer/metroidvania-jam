@@ -2,25 +2,26 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-[RequireComponent(typeof(Movement), typeof(PlayerInputs))]
-public class PlayerMovement : MonoBehaviour
+[RequireComponent(typeof(PlayerInputs))]
+public class PlayerMovement : Movement
 {
 
 	public Transform faceParent;
 
-	Movement m;
 	PlayerInputs inputs;
-	void Start() {
-		m = GetComponent<Movement>();
+	public override void Start() {
+		base.Start(); // GET RB
+
+		//m = GetComponent<Movement>();
 		inputs = GetComponent<PlayerInputs>();
 	}
 
 	// todo: move this into an animations script
 	bool facingR = true;
 	void FaceTowardsVelocity() {
-		if (m.rb.velocity.x > 0.0001f)
+		if (rb.velocity.x > 0.0001f)
 			FaceRight(true);
-		if (m.rb.velocity.x < 0.0001f)
+		if (rb.velocity.x < 0.0001f)
 			FaceRight(false);
 	}
 	void FaceRight(bool right) {
@@ -61,45 +62,45 @@ public class PlayerMovement : MonoBehaviour
 			// Walk horizontally
 			if (!sliding) {
 				if (wCooldown <= 0) {
-					m.SmoothMove(inputs.hAxis);
+					SmoothMove(inputs.hAxis);
 					FaceTowardsVelocity();
 				}
 			}
 			else {
-				int onWall = m.Wallslide();
+				int onWall = Wallslide();
 				// Move off wall
 				if (onWall == 1) {
 					FaceRight(true);
 					if (inputs.hAxis > 0)
-						m.SmoothMove(inputs.hAxis);
+						SmoothMove(inputs.hAxis);
 				}
 				if (onWall == -1) {
 					FaceRight(false);
 					if (inputs.hAxis < 0)
-						m.SmoothMove(inputs.hAxis);
+						SmoothMove(inputs.hAxis);
 				}
 			}
 			// Jump / walljump
 			if (inputs.jump && !jumping) {
 				jumping = true;
-				if (!sliding) m.Jump();
+				if (!sliding) Jump();
 				else {
 					wCooldown = wallCooldown;
-					m.Walljump();
+					Walljump();
 				}
 				
 			}
 			// Jetpack
 			if (inputs.jet)
-				m.Jetpack();
+				Jetpack();
 		}
 		else if (dashing) {
 			Vector2 direction = (facingR)? Vector2.right : -Vector2.right;
-			dashing = m.Dash(direction.normalized);
+			dashing = Dash(direction.normalized);
 			if (!dashing) dCooldown = dashCooldown;
 		}
 		else if (slamming) {
-			slamming = m.Slam();
+			slamming = Slam();
 		}
 		
 		inputs.Reset();
@@ -107,7 +108,9 @@ public class PlayerMovement : MonoBehaviour
 
 
 	bool sliding = false;
-	void OnTriggerEnter2D(Collider2D info) {
+	public override void OnTriggerEnter2D(Collider2D info) {
+		base.OnTriggerEnter2D(info);
+
 		GameObject other = info.gameObject;
 		if (other.tag == "Wall") {
 			sliding = true;
@@ -125,7 +128,9 @@ public class PlayerMovement : MonoBehaviour
 			onWall = m.Wallslide();
 		}
 	}*/
-	void OnTriggerExit2D(Collider2D info) {
+	public override void OnTriggerExit2D(Collider2D info) {
+		base.OnTriggerExit2D(info);
+
 		GameObject other = info.gameObject;
 		if (other.tag == "Wall") {
 			sliding = false;

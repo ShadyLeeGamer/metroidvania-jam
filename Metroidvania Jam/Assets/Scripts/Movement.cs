@@ -1,22 +1,20 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
 [RequireComponent(typeof(Rigidbody2D), typeof(Collider2D))]
-public class Movement : MonoBehaviour
+public abstract class Movement : Entity
 {
 
 	// This script contains all the movement functions
 	// // doesnt do anything by itself - must be called by PlayerMovement or EnemyMovement, etc
 
 	[HideInInspector] public Rigidbody2D rb;
-	void Start() {
+	public virtual void Start() {
 		rb = GetComponent<Rigidbody2D>();
 	}
 
-	public float horizontalSpeed = 1;
-	public float accelerateTime = 0.5f;
-	public float decelerateTime = 0.5f;
+	public float horizontalSpeed = 5;
+	public float accelerateTime = 0.1f;
+	public float decelerateTime = 1f;
 	float hTimer = 0;
 	float oldDeltaVX = 0; // resets the timer after a direction change
 	public int SmoothMove(float hInput) { // =0 when constant speed, =1 when accelerating, =-1 when decelerating
@@ -58,10 +56,10 @@ public class Movement : MonoBehaviour
 	}
 
 
-	public float dashSpeed = 2f;
-	public float dashTime = 0.8f;
-	public float dashEndSpeed = 0.5f;
-	public int dashCharges = 1;
+	public float dashSpeed = 15f;
+	public float dashTime = 0.2f;
+	public float dashEndSpeed = 5f;
+	public int dashCharges = 2;
 	int dCharges = 0;
 	float dTimer = 0;
 	public int GetDashCharges() {
@@ -83,10 +81,10 @@ public class Movement : MonoBehaviour
 	}
 
 
-	public float jumpSpeed = 3f;
-	public int jumpCharges = 2;
-	public float walljumpSpeed = 2f;
-	public float walljumpNormalDegrees = 30;
+	public float jumpSpeed = 5f;
+	public int jumpCharges = 3;
+	public float walljumpSpeed = 8f;
+	public float walljumpNormalDegrees = 45;
 	int jCharges = 0;
 	bool onGround = false;
 	int onWall = 0; // =1 for left wall, =-1 for right wall
@@ -132,7 +130,7 @@ public class Movement : MonoBehaviour
 	}
 
 	public float jetpackSpeed = 2f;
-	public float jetpackUseTime = 3; // fuel
+	public float jetpackUseTime = 2; // fuel
 	float jetFuel = 0;
 	public float Jetpack() {
 		if (jetFuel <= 0) return 0;
@@ -161,7 +159,7 @@ public class Movement : MonoBehaviour
 
 
 
-	void OnTriggerEnter2D(Collider2D info) {
+	public virtual void OnTriggerEnter2D(Collider2D info) {
 		GameObject other = info.gameObject;
 		if (other.tag == "Ground") {
 			onGround = true;
@@ -174,7 +172,7 @@ public class Movement : MonoBehaviour
 			ResetCharges();
 		}
 	}
-	void OnTriggerExit2D(Collider2D info) {
+	public virtual void OnTriggerExit2D(Collider2D info) {
 		GameObject other = info.gameObject;
 		if (other.tag == "Ground") {
 			onGround = false;
