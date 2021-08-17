@@ -346,8 +346,9 @@ GameObject:
   - component: {fileID: 412872092}
   - component: {fileID: 412872091}
   - component: {fileID: 412872090}
-  - component: {fileID: 412872088}
   - component: {fileID: 412872089}
+  - component: {fileID: 412872088}
+  - component: {fileID: 412872094}
   m_Layer: 3
   m_Name: Player
   m_TagString: Untagged
@@ -367,7 +368,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b96c05122d85e8947983fe8c8cd39d4d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  maxHealth: 100
+  maxHealth: 0
   rb: {fileID: 0}
   horizontalSpeed: 5
   accelerateTime: 0.1
@@ -401,15 +402,9 @@ MonoBehaviour:
   m_GameObject: {fileID: 412872087}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 2cd3127bd4801f648b7260959f4861c8, type: 3}
+  m_Script: {fileID: 11500000, guid: 5460180cbc1a35f4b926928680516137, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  mouseWorld: {x: 0, y: 0}
-  hAxis: 0
-  dash: 0
-  jump: 0
-  slam: 0
-  jet: 0
 --- !u!50 &412872090
 Rigidbody2D:
   serializedVersion: 4
@@ -524,6 +519,24 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 2
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &412872094
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 412872087}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2cd3127bd4801f648b7260959f4861c8, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  mouseWorld: {x: 0, y: 0}
+  hAxis: 0
+  dash: 0
+  jump: 0
+  slam: 0
+  jet: 0
 --- !u!1 &570560355
 GameObject:
   m_ObjectHideFlags: 0
@@ -689,6 +702,52 @@ SpriteRenderer:
   m_WasSpriteAssigned: 1
   m_MaskInteraction: 0
   m_SpriteSortPoint: 0
+--- !u!1 &873023147
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 873023149}
+  - component: {fileID: 873023148}
+  m_Layer: 0
+  m_Name: Object Pooler
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &873023148
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 873023147}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b491107324c6b864bbf10567e8dd2601, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  recycle: 1
+  projectilePrefabs:
+  - {fileID: 1092914204988542555, guid: e4d3bdacfc032c744b208bb5c50abdd7, type: 3}
+--- !u!4 &873023149
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 873023147}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_RootOrder: 4
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1048880077
 GameObject:
   m_ObjectHideFlags: 0
@@ -988,6 +1047,28 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7f2d22be06026ca4197b4a7f36b5a430, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  maxHealth: 0
+  rb: {fileID: 0}
+  horizontalSpeed: 3
+  accelerateTime: 0.1
+  decelerateTime: 1
+  dashSpeed: 15
+  dashTime: 0.2
+  dashEndSpeed: 5
+  dashCharges: 2
+  jumpSpeed: 5
+  jumpCharges: 3
+  walljumpSpeed: 8
+  walljumpNormalDegrees: 45
+  wallslideSpeed: 1
+  jetpackSpeed: 2
+  jetpackUseTime: 2
+  slamGravity: 3
+  hookThrowSpeed: 10
+  hookRetractTime: 1
+  hookGravity: 1
+  chainLength: 4
+  hookPrefab: {fileID: 0}
   stoppingRange: 4
   armPivot: {fileID: 1924311136}
   armPivotRotationOffsetZ: 0
@@ -997,6 +1078,8 @@ MonoBehaviour:
   playerLayerMask:
     serializedVersion: 2
     m_Bits: 8
+  gun: {fileID: 11400000, guid: 20d9bad8e0e8afe488d3a43b3a2dcfe1, type: 2}
+  shootPos: {x: 2.15, y: 0.625, z: 0}
   drawGizmos: 1
 --- !u!61 &1232603157
 BoxCollider2D:
@@ -1036,20 +1119,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5460180cbc1a35f4b926928680516137, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  rb: {fileID: 0}
-  horizontalSpeed: 3
-  accelerateTime: 0.5
-  decelerateTime: 0.5
-  dashSpeed: 2
-  dashTime: 0.8
-  dashEndSpeed: 0.5
-  jumpSpeed: 3
-  jumpCharges: 2
-  walljumpSpeed: 2
-  walljumpNormalDegrees: 30
-  wallslideSpeed: 2
-  jetpackSpeed: 2
-  slamGravity: 3
 --- !u!50 &1232603159
 Rigidbody2D:
   serializedVersion: 4

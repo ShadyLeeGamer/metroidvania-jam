@@ -1,19 +1,27 @@
 using UnityEngine;
 
-public class Enemy : MonoBehaviour
+public class Enemy : Movement
 {
+    [Header("Movement")]
     [SerializeField] float stoppingRange;
 
     Vector3 targetPos;
     Transform player;
+
+    [Header("Arm Pivot")]
     [SerializeField] Transform armPivot;
     [SerializeField] float armPivotRotationOffsetZ;
     [SerializeField] float armPivotRotationSpeed;
 
+    [Header("Look Raycast")]
     [SerializeField] float lookRange;
     [SerializeField] Vector3 lookRaycastPosOffset;
     [SerializeField] LayerMask playerLayerMask;
 
+    [Header("Shooting")]
+    [SerializeField] GunSettings gun;
+    [SerializeField] Vector3 shootPos;
+    [Header("Testing")]
     [SerializeField] bool drawGizmos;
 
     Vector3 LookRayPos => transform.position + lookRaycastPosOffset;
@@ -23,22 +31,35 @@ public class Enemy : MonoBehaviour
 
     Movement movement;
 
+    ObjectPooler objectPooler;
+
     void Awake()
     {
         movement = GetComponent<Movement>();
+    }
+
+    public override void Start()
+    {
+        base.Start();
+        objectPooler = ObjectPooler.Instance;
     }
 
     void FixedUpdate()
     {
         CorrectFaceDir();
 
-        float faceDir = TargetInRightDir ? 1 : -1;
+        int faceDir = TargetInRightDir ? 1 : -1;
         RaycastHit2D hit = Physics2D.Raycast(LookRayPos, armPivot.right, lookRange, playerLayerMask);
         player = hit ? hit.transform : null;
         targetPos = hit ? player.position : transform.position + (Vector3.right * faceDir);
 
         if (Mathf.Abs(DiffWithTargetPos.x) > stoppingRange)
-            movement.SmoothMove(faceDir);
+            SmoothMove(faceDir);
+
+        if (player && Mathf.Abs(DiffWithTargetPos.x) > gun.shootRange)
+        {
+            gun.Shoot(objectPooler, LocalisePos(shootPos), Quaternion.Euler(armPivot.right.x, armPivot.right.y, armPivot.right.z), faceDir);
+        }
     }
 
     void CorrectFaceDir()
@@ -67,6 +88,11 @@ public class Enemy : MonoBehaviour
                              armPivotRotationSpeed * Time.fixedDeltaTime);
     }
 
+    Vector3 LocalisePos(Vector3 pos)
+    {
+        return transform.position + pos;
+    }
+
     void OnDrawGizmos()
     {
         if (drawGizmos)
@@ -76,6 +102,9 @@ public class Enemy : MonoBehaviour
             else if (!player)
                 Gizmos.color = Color.red;
             Gizmos.DrawRay(LookRayPos, armPivot.right * lookRange);
+
+            Gizmos.color = Color.yellow;
+            Gizmos.DrawSphere(LocalisePos(shootPos), .1f);
         }
     }
 }
