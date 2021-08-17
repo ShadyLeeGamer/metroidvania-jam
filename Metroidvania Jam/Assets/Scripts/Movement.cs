@@ -1,22 +1,20 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
 [RequireComponent(typeof(Rigidbody2D), typeof(Collider2D))]
-public class Movement : MonoBehaviour
+public abstract class Movement : Entity
 {
 
 	// This script contains all the movement functions
 	// // doesnt do anything by itself - must be called by PlayerMovement or EnemyMovement, etc
 
 	[HideInInspector] public Rigidbody2D rb;
-	void Start() {
+	public virtual void Start() {
 		rb = GetComponent<Rigidbody2D>();
 	}
 
-	public float horizontalSpeed = 1;
-	public float accelerateTime = 0.5f;
-	public float decelerateTime = 0.5f;
+	public float horizontalSpeed = 5;
+	public float accelerateTime = 0.1f;
+	public float decelerateTime = 1f;
 	float hTimer = 0;
 	float oldDeltaVX = 0; // resets the timer after a direction change
 	public int SmoothMove(float hInput) { // =0 when constant speed, =1 when accelerating, =-1 when decelerating
@@ -58,10 +56,10 @@ public class Movement : MonoBehaviour
 	}
 
 
-	public float dashSpeed = 2f;
-	public float dashTime = 0.8f;
-	public float dashEndSpeed = 0.5f;
-	public int dashCharges = 1;
+	public float dashSpeed = 15f;
+	public float dashTime = 0.2f;
+	public float dashEndSpeed = 5f;
+	public int dashCharges = 2;
 	int dCharges = 0;
 	float dTimer = 0;
 	public int GetDashCharges() {
@@ -83,10 +81,10 @@ public class Movement : MonoBehaviour
 	}
 
 
-	public float jumpSpeed = 3f;
-	public int jumpCharges = 2;
-	public float walljumpSpeed = 2f;
-	public float walljumpNormalDegrees = 30;
+	public float jumpSpeed = 5f;
+	public int jumpCharges = 3;
+	public float walljumpSpeed = 8f;
+	public float walljumpNormalDegrees = 45;
 	int jCharges = 0;
 	bool onGround = false;
 	int onWall = 0; // =1 for left wall, =-1 for right wall
@@ -132,7 +130,7 @@ public class Movement : MonoBehaviour
 	}
 
 	public float jetpackSpeed = 2f;
-	public float jetpackUseTime = 3; // fuel
+	public float jetpackUseTime = 2; // fuel
 	float jetFuel = 0;
 	public float Jetpack() {
 		if (jetFuel <= 0) return 0;
@@ -155,13 +153,68 @@ public class Movement : MonoBehaviour
 		}
 	}
 
+
+
+	public float hookThrowSpeed = 10;
+	public float hookRetractTime = 1;
+	public float hookGravity = 1;
+	public float chainLength = 4;
+	public GameObject hookPrefab;
+	Rigidbody2D hook;
+	Rigidbody2D CreateHook() {
+		if (hook != null) Destroy(hook.gameObject);
+		Transform h = Instantiate(hookPrefab).transform;
+		h.parent = transform.Find("Grapple");
+		h.localPosition = Vector2.zero;
+		return h.GetComponent<Rigidbody2D>();
+	}
+ 	public bool ThrowHook(Vector2 direction) { // =true when still throwing
+ 		// Throw the hook
+		if (hook == null) {
+			hook = CreateHook();
+			hook.velocity = hookThrowSpeed * direction;
+			hook.gravityScale = hookGravity;
+		}
+		
+		// If attached to a hookable, dangle the player from hook
+		if (hook.GetComponent<Collider2D>().IsTouchingLayers(7)) {
+			hook.velocity = Vector2.zero;
+			float hookDist = Vector2.Distance(transform.position, hook.transform.position);
+			if (hookDist >= chainLength) {
+				// Pendulum - turn any non-tangent, outward velocity into some tangent
+				// reflect the outward velocity as if circle was a surface?
+			}
+			return false;
+		}
+		// If attached to an enemy, pull both sides together
+		// If forced out of chain range, return false
+		return true; // otherwise still throwing
+	}
+	public bool RetractHook(bool detach) { // =true when still retracting
+		if (hook == null) return false;
+		// Destroy when hook is fully retracted
+		Vector2 delta = hook.transform.position - transform.position;
+		if (delta.magnitude < 0.01f) {
+			Destroy(hook.gameObject);
+			return false;
+		}
+		// Accelerate hook towards me
+		else if (detach) {
+			return true;
+		}
+		// Accelerate towards hook
+		else {
+			return true;
+		}
+	}
+
 	// todo: wall + ground crawl for enemies
 	// // hook
 	// // driving
 
 
 
-	void OnTriggerEnter2D(Collider2D info) {
+	public virtual void OnTriggerEnter2D(Collider2D info) {
 		GameObject other = info.gameObject;
 		if (other.tag == "Ground") {
 			onGround = true;
@@ -174,7 +227,7 @@ public class Movement : MonoBehaviour
 			ResetCharges();
 		}
 	}
-	void OnTriggerExit2D(Collider2D info) {
+	public virtual void OnTriggerExit2D(Collider2D info) {
 		GameObject other = info.gameObject;
 		if (other.tag == "Ground") {
 			onGround = false;
