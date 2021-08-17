@@ -105,10 +105,10 @@ public class PlayerMovement : Movement
 			slamming = Slam();
 		}
 		else if (throwingHook) {
-			throwingHook = m.ThrowHook(inputs.mouseWorld.normalized);
+			throwingHook = ThrowHook(inputs.mouseWorld.normalized);
 		}
 		else if (retractingHook) {
-			retractingHook = m.RetractHook(true);
+			retractingHook = RetractHook(true);
 		}
 		
 		inputs.Reset();
