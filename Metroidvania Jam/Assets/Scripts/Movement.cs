@@ -9,6 +9,7 @@ public abstract class Movement : Entity
 
 	[HideInInspector] public Rigidbody2D rb;
 	public virtual void Start() {
+		base.Start(); // SET HEALTH
 		rb = GetComponent<Rigidbody2D>();
 	}
 

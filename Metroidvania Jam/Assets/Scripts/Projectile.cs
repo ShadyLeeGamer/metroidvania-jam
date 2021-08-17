@@ -8,7 +8,7 @@ public class Projectile : MonoBehaviour, IPooledObject
 
     Rigidbody2D rb;
 
-    bool isPlayerProjectile;
+    bool isPlayer;
 
     ObjectPooler objectPooler;
 
@@ -17,27 +17,29 @@ public class Projectile : MonoBehaviour, IPooledObject
         objectPooler = ObjectPooler.Instance;
     }
 
-    public void Initialise(ObjectData projectileData)
+    public void Initialise(ObjectData data)
     {
-        damage = projectileData.damage;
-        isPlayerProjectile = projectileData.isPlayerProjectile;
+        damage = data.damage;
+        isPlayer = data.isPlayerProjectile;
 
         rb = GetComponent<Rigidbody2D>();
-        rb.AddForce(transform.position + (Vector3.right * projectileData.speed * projectileData.faceDir));
+        rb.AddForce(transform.right * data.speed * data.faceDir);
     }
 
-    void OnTriggerEnter(Collider other)
+    void OnTriggerEnter2D(Collider2D other)
     {
         PlayerMovement otherCharacter = other.GetComponent<PlayerMovement>();
         if (otherCharacter)
         {
-            if ((!isPlayerProjectile && other.GetComponent<Enemy>()) ||
-                isPlayerProjectile && !other.GetComponent<Enemy>())
+            if ((!isPlayer && other.GetComponent<Enemy>()) ||
+                isPlayer && !other.GetComponent<Enemy>())
                 return;
 
-            //otherCharacter.TakeDamage(damage);
+            otherCharacter.TakeDamage(damage);
             EndProjectile();
         }
+        else if (other.CompareTag("Wall") || other.CompareTag("Ground"))
+            EndProjectile();
     }
 
     public void EndProjectile()

@@ -20,7 +20,9 @@ public class Enemy : Movement
 
     [Header("Shooting")]
     [SerializeField] GunSettings gun;
-    [SerializeField] Vector3 shootPos;
+    [SerializeField] Transform shootPoint;
+    float shootCountdown;
+
     [Header("Testing")]
     [SerializeField] bool drawGizmos;
 
@@ -56,10 +58,19 @@ public class Enemy : Movement
         if (Mathf.Abs(DiffWithTargetPos.x) > stoppingRange)
             SmoothMove(faceDir);
 
-        if (player && Mathf.Abs(DiffWithTargetPos.x) > gun.shootRange)
+        if (player && Mathf.Abs(DiffWithTargetPos.x) <= gun.shootRange)
         {
-            gun.Shoot(objectPooler, LocalisePos(shootPos), Quaternion.Euler(armPivot.right.x, armPivot.right.y, armPivot.right.z), faceDir);
+            shootCountdown -= gun.fireRate * Time.deltaTime;
+            if (shootCountdown <= 0)
+            {
+                Vector3 projRot = gun.AddRecoil(armPivot.localEulerAngles);
+                Quaternion projRotWithDir = Quaternion.Euler(projRot.x, projRot.y, projRot.z * faceDir);
+                gun.Shoot(objectPooler, shootPoint.position, projRotWithDir, faceDir);
+                shootCountdown = 1;
+            }
         }
+        else if (shootCountdown != 1)
+            shootCountdown = 1;
     }
 
     void CorrectFaceDir()
@@ -102,9 +113,6 @@ public class Enemy : Movement
             else if (!player)
                 Gizmos.color = Color.red;
             Gizmos.DrawRay(LookRayPos, armPivot.right * lookRange);
-
-            Gizmos.color = Color.yellow;
-            Gizmos.DrawSphere(LocalisePos(shootPos), .1f);
         }
     }
 }

@@ -11,6 +11,11 @@ public class GunSettings : ScriptableObject
     public float projSpeed;
     public int projDamage;
 
+    public Vector3 AddRecoil(Vector3 rot)
+    {
+        return rot + Vector3.forward * Random.Range(-recoil, recoil);
+    }
+
     public void Shoot(ObjectPooler objectPooler, Vector3 shootPos, Quaternion projectileRot, int faceDir)
     {
         ObjectData projectileData = new ObjectData(projDamage, projSpeed, faceDir, false);

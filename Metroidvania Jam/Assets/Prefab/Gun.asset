@@ -13,8 +13,8 @@ MonoBehaviour:
   m_Name: Gun
   m_EditorClassIdentifier: 
   shootRange: 7
-  fireRate: 1
-  recoil: 0
+  fireRate: 10
+  recoil: 5
   projectilePrefab: {fileID: 1092914204988542555, guid: e4d3bdacfc032c744b208bb5c50abdd7, type: 3}
-  projSpeed: 5
-  projDamage: 0
+  projSpeed: 300
+  projDamage: 2
