@@ -346,8 +346,8 @@ GameObject:
   - component: {fileID: 412872092}
   - component: {fileID: 412872091}
   - component: {fileID: 412872090}
-  - component: {fileID: 412872089}
   - component: {fileID: 412872088}
+  - component: {fileID: 412872089}
   m_Layer: 3
   m_Name: Player
   m_TagString: Untagged
@@ -367,7 +367,31 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b96c05122d85e8947983fe8c8cd39d4d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  maxHealth: 100
+  rb: {fileID: 0}
+  horizontalSpeed: 5
+  accelerateTime: 0.1
+  decelerateTime: 1
+  dashSpeed: 15
+  dashTime: 0.2
+  dashEndSpeed: 5
+  dashCharges: 2
+  jumpSpeed: 5
+  jumpCharges: 3
+  walljumpSpeed: 8
+  walljumpNormalDegrees: 45
+  wallslideSpeed: 1
+  jetpackSpeed: 2
+  jetpackUseTime: 2
+  slamGravity: 3
+  hookThrowSpeed: 10
+  hookRetractTime: 1
+  hookGravity: 1
+  chainLength: 4
+  hookPrefab: {fileID: 0}
   faceParent: {fileID: 1215179918}
+  dashCooldown: 0.3
+  wallCooldown: 0.2
 --- !u!114 &412872089
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -377,23 +401,15 @@ MonoBehaviour:
   m_GameObject: {fileID: 412872087}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 5460180cbc1a35f4b926928680516137, type: 3}
+  m_Script: {fileID: 11500000, guid: 2cd3127bd4801f648b7260959f4861c8, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  rb: {fileID: 0}
-  horizontalSpeed: 5
-  accelerateTime: 0.1
-  decelerateTime: 1
-  dashSpeed: 10
-  dashTime: 0.3
-  dashEndSpeed: 3
-  jumpSpeed: 5
-  jumpCharges: 4
-  walljumpSpeed: 8
-  walljumpNormalDegrees: 45
-  wallslideSpeed: 1
-  jetpackSpeed: 2
-  slamGravity: 3
+  mouseWorld: {x: 0, y: 0}
+  hAxis: 0
+  dash: 0
+  jump: 0
+  slam: 0
+  jet: 0
 --- !u!50 &412872090
 Rigidbody2D:
   serializedVersion: 4
