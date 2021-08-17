@@ -42,6 +42,8 @@ public class PlayerMovement : Movement
 	bool dashing = false;
 	bool slamming = false;
 	bool jumping = false;
+	bool throwingHook = false;
+	bool retractingHook = false;
 	void FixedUpdate() {
 		//Debug.Log(sliding + " " + dashing + " " + slamming + " " + Time.time + " " + m.GetJumpCharges());
 		
@@ -101,6 +103,12 @@ public class PlayerMovement : Movement
 		}
 		else if (slamming) {
 			slamming = Slam();
+		}
+		else if (throwingHook) {
+			throwingHook = m.ThrowHook(inputs.mouseWorld.normalized);
+		}
+		else if (retractingHook) {
+			retractingHook = m.RetractHook(true);
 		}
 		
 		inputs.Reset();

@@ -5,6 +5,7 @@ using UnityEngine;
 public class PlayerInputs : MonoBehaviour
 {
 
+	[HideInInspector] public Vector2 mouseWorld = Vector2.zero;
 	[HideInInspector] public float hAxis = 0;
 	[HideInInspector] public bool dash = false;
 	[HideInInspector] public bool jump = false;
@@ -26,6 +27,7 @@ public class PlayerInputs : MonoBehaviour
     KeyCode SlamCode = KeyCode.S;
     KeyCode JetCode = KeyCode.Space;
     void UpdateInputs() {
+    	mouseWorld = Camera.main.ScreenToWorldPoint(Input.mousePosition);
     	hAxis = Input.GetAxis(HorizontalAxis);
     	dash |= Input.GetKey(DashCode);
     	jump |= Input.GetKey(JumpCode);
