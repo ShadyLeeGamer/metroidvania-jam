@@ -972,7 +972,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7f2d22be06026ca4197b4a7f36b5a430, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  stoppingRange: 3
+  stoppingRange: 4
   armPivot: {fileID: 1924311136}
   armPivotRotationOffsetZ: 0
   armPivotRotationSpeed: 50
