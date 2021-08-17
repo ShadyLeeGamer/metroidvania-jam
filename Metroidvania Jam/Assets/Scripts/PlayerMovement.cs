@@ -2,82 +2,129 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-[RequireComponent(typeof(Movement))]
+[RequireComponent(typeof(Movement), typeof(PlayerInputs))]
 public class PlayerMovement : MonoBehaviour
 {
 
 	public Transform faceParent;
 
 	Movement m;
+	PlayerInputs inputs;
 	void Start() {
 		m = GetComponent<Movement>();
+		inputs = GetComponent<PlayerInputs>();
 	}
 
 	// todo: move this into an animations script
 	bool facingR = true;
 	void FaceTowardsVelocity() {
-		if (m.rb.velocity.x > 0.0001f) {
+		if (m.rb.velocity.x > 0.0001f)
+			FaceRight(true);
+		if (m.rb.velocity.x < 0.0001f)
+			FaceRight(false);
+	}
+	void FaceRight(bool right) {
+		if (right) {
 			facingR = true;
 			faceParent.eulerAngles = Vector2.zero;
 		}
-		if (m.rb.velocity.x < 0.0001f) {
+		else {
 			facingR = false;
 			faceParent.eulerAngles = 180 * Vector2.up;
 		}
 	}
 
-
+	public float dashCooldown = 0.3f;
+	public float wallCooldown = 0.2f;
+	float dCooldown = 0;
+	float wCooldown = 0;
 	bool dashing = false;
 	bool slamming = false;
-	void Update() {
-		//Debug.Log(sliding + " " + Time.time + " " + m.GetCharges());
-		if (Input.GetKeyDown(KeyCode.LeftShift))
+	bool jumping = false;
+	void FixedUpdate() {
+		//Debug.Log(sliding + " " + dashing + " " + slamming + " " + Time.time + " " + m.GetJumpCharges());
+		
+		// Start ability - dash, slam, or jump
+		if (dCooldown > 0) dCooldown -= Time.fixedDeltaTime;
+		if (wCooldown > 0) wCooldown -= Time.fixedDeltaTime;
+		if (!dashing && inputs.dash && dCooldown <= 0)
 			dashing = true;
-		if (Input.GetKeyDown(KeyCode.E))
+		if (!slamming && inputs.slam) {
 			slamming = true;
+			sliding = false;
+		}
+		if (jumping && !inputs.jump)
+			jumping = false;
+
 
 		if (!dashing && !slamming) {
+			// Walk horizontally
 			if (!sliding) {
-				float h = Input.GetAxis("Horizontal");
-				m.SmoothMove(h);
-				FaceTowardsVelocity();
-			}
-			if (Input.GetKeyDown(KeyCode.W)) {
-				if (!sliding) m.Jump();
-				else {
-					slideCooldown = 0.5f;
-					m.Walljump();
+				if (wCooldown <= 0) {
+					m.SmoothMove(inputs.hAxis);
+					FaceTowardsVelocity();
 				}
 			}
-			if (Input.GetKey(KeyCode.Space))
+			else {
+				int onWall = m.Wallslide();
+				// Move off wall
+				if (onWall == 1) {
+					FaceRight(true);
+					if (inputs.hAxis > 0)
+						m.SmoothMove(inputs.hAxis);
+				}
+				if (onWall == -1) {
+					FaceRight(false);
+					if (inputs.hAxis < 0)
+						m.SmoothMove(inputs.hAxis);
+				}
+			}
+			// Jump / walljump
+			if (inputs.jump && !jumping) {
+				jumping = true;
+				if (!sliding) m.Jump();
+				else {
+					wCooldown = wallCooldown;
+					m.Walljump();
+				}
+				
+			}
+			// Jetpack
+			if (inputs.jet)
 				m.Jetpack();
 		}
 		else if (dashing) {
 			Vector2 direction = (facingR)? Vector2.right : -Vector2.right;
 			dashing = m.Dash(direction.normalized);
+			if (!dashing) dCooldown = dashCooldown;
 		}
 		else if (slamming) {
 			slamming = m.Slam();
 		}
 		
-
+		inputs.Reset();
 	}
 
 
 	bool sliding = false;
-	float slideCooldown = 0;
-	void OnTriggerStay2D(Collider2D info) {
+	void OnTriggerEnter2D(Collider2D info) {
 		GameObject other = info.gameObject;
-		if (slideCooldown >= 0) {
+		if (other.tag == "Wall") {
+			sliding = true;
+		}
+	}
+	/*void OnTriggerStay2D(Collider2D info) {
+		GameObject other = info.gameObject;
+		if (slideCooldown >= 0 || slamming) {
 			sliding = false;
-			slideCooldown -= Time.deltaTime;
+			slideCooldown -= Time.fixedDeltaTime;
 			return;
 		}
 		if (other.tag == "Wall") {
 			sliding = true;
-			m.Wallslide();
+			onWall = m.Wallslide();
 		}
-	}
+	}*/
 	void OnTriggerExit2D(Collider2D info) {
 		GameObject other = info.gameObject;
 		if (other.tag == "Wall") {

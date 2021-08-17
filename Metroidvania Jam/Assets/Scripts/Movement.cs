@@ -38,9 +38,15 @@ public class Movement : MonoBehaviour
 		float maxTime = (deltaVX * hInput > 0)?
 			accelerateTime : decelerateTime;
 		if (hTimer < maxTime) { // linearly adjust velocity
-			float slope = deltaVX / (maxTime - hTimer);
-			hTimer += Time.deltaTime;
-			newVX = rb.velocity.x + slope * Time.deltaTime;
+			float deltaT = maxTime - hTimer;
+			deltaT = Mathf.Round(1000 * deltaT) / 1000; // will always be in 0.02 increments
+			if (deltaT <= 0.001)
+				newVX = desiredVX;
+			else {
+				float slope = deltaVX / deltaT;
+				hTimer += Time.fixedDeltaTime;
+				newVX = rb.velocity.x + slope * Time.fixedDeltaTime;
+			}
 		}
 		else { // Reset timer when acceleration / deceleration has finished
 			hTimer = 0;
@@ -55,15 +61,22 @@ public class Movement : MonoBehaviour
 	public float dashSpeed = 2f;
 	public float dashTime = 0.8f;
 	public float dashEndSpeed = 0.5f;
+	public int dashCharges = 1;
+	int dCharges = 0;
 	float dTimer = 0;
+	public int GetDashCharges() {
+		return dCharges;
+	}
 	public bool Dash(Vector2 direction) {
+		if (dCharges <= 0) return false;
 		if (dTimer < dashTime) {
-			dTimer += Time.deltaTime;
+			dTimer += Time.fixedDeltaTime;
 			rb.velocity = dashSpeed * direction;
 			return true;
 		}
 		else {
 			dTimer = 0;
+			dCharges--;
 			rb.velocity = dashEndSpeed * direction;
 			return false;
 		}
@@ -77,13 +90,16 @@ public class Movement : MonoBehaviour
 	int jCharges = 0;
 	bool onGround = false;
 	int onWall = 0; // =1 for left wall, =-1 for right wall
-	public int GetCharges() {
+	public int GetJumpCharges() {
 		return jCharges;
 	}
 	public void ResetCharges() {
 		jCharges = jumpCharges;
+		dCharges = dashCharges;
+		jetFuel = jetpackUseTime;
 	}
 	public void Jump() {
+		//Debug.Log("Jump" + " " + onGround + " " + onWall);
 		if (jCharges <= 0) return;
 		if (onGround || onWall == 0) {
 			jCharges--;
@@ -102,20 +118,29 @@ public class Movement : MonoBehaviour
 		rb.velocity = speed * direction;
 	}
 	void JumpDegrees(float deg, float speed) {
-		Debug.Log(deg);
 		float rad = deg * Mathf.Deg2Rad;
 		Vector2 fromDegrees = new Vector2(Mathf.Cos(rad), Mathf.Sin(rad));
 		JumpDirection(fromDegrees, speed);
 	}
 
-	public float wallslideSpeed = 2f;
-	public void Wallslide() {
+	public float wallslideSpeed = 1f;
+	public int Wallslide() {
+		//Debug.Log(onWall);
+		if (onWall == 0) return 0;
 		rb.velocity = new Vector2(rb.velocity.x, -wallslideSpeed);
+		return onWall;
 	}
 
 	public float jetpackSpeed = 2f;
-	public void Jetpack() {
-		rb.velocity = new Vector2(rb.velocity.x, jetpackSpeed);
+	public float jetpackUseTime = 3; // fuel
+	float jetFuel = 0;
+	public float Jetpack() {
+		if (jetFuel <= 0) return 0;
+		else {
+			jetFuel -= Time.fixedDeltaTime;
+			rb.velocity = new Vector2(rb.velocity.x, jetpackSpeed);
+			return jetFuel;
+		}
 	}
 
 	public float slamGravity = 3f;
@@ -130,25 +155,27 @@ public class Movement : MonoBehaviour
 		}
 	}
 
-	// hook
+	// todo: wall + ground crawl for enemies
+	// // hook
+	// // driving
 
 
 
-	void OnCollisionEnter2D(Collision2D info) {
-		GameObject other = info.collider.gameObject;
+	void OnTriggerEnter2D(Collider2D info) {
+		GameObject other = info.gameObject;
 		if (other.tag == "Ground") {
 			onGround = true;
 			ResetCharges();
 		}
 		if (other.tag == "Wall") {
-			if (info.GetContact(0).point.x < transform.position.x)
+			if (other.transform.position.x < transform.position.x)
 				onWall = 1;
 			else onWall = -1;
 			ResetCharges();
 		}
 	}
-	void OnCollisionExit2D(Collision2D info) {
-		GameObject other = info.collider.gameObject;
+	void OnTriggerExit2D(Collider2D info) {
+		GameObject other = info.gameObject;
 		if (other.tag == "Ground") {
 			onGround = false;
 		}
