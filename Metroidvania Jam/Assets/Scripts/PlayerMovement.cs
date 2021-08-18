@@ -6,17 +6,18 @@ using UnityEngine;
 public class PlayerMovement : Movement
 {
 
+	// todo: generalize inputs script, then rename to RobotMovement
+
 	public Transform faceParent;
 
 	PlayerInputs inputs;
 	public override void Start() {
 		base.Start(); // GET RB
 
-		//m = GetComponent<Movement>();
 		inputs = GetComponent<PlayerInputs>();
 	}
 
-	// todo: move this into an animations script
+	// todo: move this into a RobotAnimations script
 	bool facingR = true;
 	void FaceTowardsVelocity() {
 		if (rb.velocity.x > 0.0001f)
@@ -42,7 +43,7 @@ public class PlayerMovement : Movement
 	bool dashing = false;
 	bool slamming = false;
 	bool jumping = false;
-	bool throwingHook = false;
+	bool hooking = false;
 	bool retractingHook = false;
 	void FixedUpdate() {
 		//Debug.Log(sliding + " " + dashing + " " + slamming + " " + Time.time + " " + m.GetJumpCharges());
@@ -58,14 +59,17 @@ public class PlayerMovement : Movement
 		}
 		if (jumping && !inputs.jump)
 			jumping = false;
-		if (!throwingHook && inputs.mouse1) {
-			throwingHook = true;
-			retractingHook = false;
+		if (inputs.mouse1) {
+			if (!hooking) {
+				hooking = true;
+				ThrowHook((inputs.mouseWorld - (Vector2)transform.position).normalized);
+			}
+			else retractingHook = true;
 		}
 
 
 		if (!dashing && !slamming) {
-			// Walk horizontally
+			// Midair move horizontally
 			if (!sliding) {
 				if (wCooldown <= 0) {
 					SmoothMove(inputs.hAxis);
@@ -89,20 +93,30 @@ public class PlayerMovement : Movement
 			// Jump / walljump
 			if (inputs.jump && !jumping) {
 				jumping = true;
-				if (!sliding) Jump();
+				if (!sliding) {
+					Jump();
+				}
 				else {
 					wCooldown = wallCooldown;
 					Walljump();
 				}
-				
+				if (hooking) retractingHook = true;
 			}
 			// Jetpack
-			if (inputs.jet)
+			if (inputs.jet) {
 				Jetpack();
+				if (hooking) retractingHook = true;
+			}
 
-
-			if (throwingHook) {
-				ThrowHook(inputs.mouseWorld.normalized);
+			// Hook
+			if (hooking) {
+				hooking = Hook();
+				if (retractingHook) {
+					retractingHook = hooking;
+					// Transfer to new robot or somethin
+					//GameObject attachedTo = GetHookAttachedTo();
+					RetractHook();
+				}
 			}
 
 		}
@@ -110,9 +124,11 @@ public class PlayerMovement : Movement
 			Vector2 direction = (facingR)? Vector2.right : -Vector2.right;
 			dashing = Dash(direction.normalized);
 			if (!dashing) dCooldown = dashCooldown;
+			if (hooking) retractingHook = true;
 		}
 		else if (slamming) {
 			slamming = Slam();
+			if (hooking) retractingHook = true;
 		}
 		
 		inputs.Reset();
@@ -128,18 +144,6 @@ public class PlayerMovement : Movement
 			sliding = true;
 		}
 	}
-	/*void OnTriggerStay2D(Collider2D info) {
-		GameObject other = info.gameObject;
-		if (slideCooldown >= 0 || slamming) {
-			sliding = false;
-			slideCooldown -= Time.fixedDeltaTime;
-			return;
-		}
-		if (other.tag == "Wall") {
-			sliding = true;
-			onWall = m.Wallslide();
-		}
-	}*/
 	public override void OnTriggerExit2D(Collider2D info) {
 		base.OnTriggerExit2D(info);
 
