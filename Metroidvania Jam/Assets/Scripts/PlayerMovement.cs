@@ -8,6 +8,8 @@ public class PlayerMovement : Movement
 
 	public Transform faceParent;
 
+	[SerializeField] Gun gun;
+
 	PlayerInputs inputs;
 	public override void Start() {
 		base.Start(); // GET RB
@@ -58,6 +60,14 @@ public class PlayerMovement : Movement
 		}
 		if (jumping && !inputs.jump)
 			jumping = false;
+
+
+
+
+		if (inputs.shoot) {
+			float xVelocity = facingR ? 1f : -1f;
+			gun.Shoot(new Vector2(xVelocity, 0f));
+		}
 
 
 		if (!dashing && !slamming) {
