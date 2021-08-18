@@ -1088,7 +1088,7 @@ SpriteRenderer:
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: 1
-  m_Sprite: {fileID: 21300000, guid: 98df9459a7e36a0418bcfb8fc02c2b8f, type: 3}
+  m_Sprite: {fileID: 21300000, guid: 199daef854c94f347b3e312874ac1cbc, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 1
   m_FlipY: 0
@@ -1252,7 +1252,7 @@ GameObject:
   - component: {fileID: 1232603156}
   - component: {fileID: 1232603157}
   - component: {fileID: 1232603159}
-  m_Layer: 0
+  m_Layer: 7
   m_Name: Enemy
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -1798,7 +1798,7 @@ GameObject:
   - component: {fileID: 1684177872}
   - component: {fileID: 1684177871}
   - component: {fileID: 1684177870}
-  m_Layer: 0
+  m_Layer: 7
   m_Name: Enemy (1)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -1866,7 +1866,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   maxHealth: 100
   rb: {fileID: 0}
-  horizontalSpeed: 3
+  horizontalSpeed: 4.5
   accelerateTime: 0.1
   decelerateTime: 1
   dashSpeed: 15
@@ -1896,7 +1896,7 @@ MonoBehaviour:
   playerLayerMask:
     serializedVersion: 2
     m_Bits: 8
-  gun: {fileID: 11400000, guid: 20d9bad8e0e8afe488d3a43b3a2dcfe1, type: 2}
+  gun: {fileID: 11400000, guid: eb0880eb2dd564142936a4d806985dd9, type: 2}
   shootPoint: {fileID: 806920840}
   drawGizmos: 1
 --- !u!4 &1684177873

@@ -17,4 +17,4 @@ MonoBehaviour:
   recoil: 5
   projectilePrefab: {fileID: 1092914204988542555, guid: e4d3bdacfc032c744b208bb5c50abdd7, type: 3}
   projSpeed: 500
-  projDamage: 0
+  projDamage: 2
