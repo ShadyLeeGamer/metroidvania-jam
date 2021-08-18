@@ -21,7 +21,7 @@ public class PlayerMovement : Movement
 	void FaceTowardsVelocity() {
 		if (rb.velocity.x > 0.0001f)
 			FaceRight(true);
-		if (rb.velocity.x < 0.0001f)
+		if (rb.velocity.x < -0.0001f)
 			FaceRight(false);
 	}
 	void FaceRight(bool right) {
@@ -58,6 +58,10 @@ public class PlayerMovement : Movement
 		}
 		if (jumping && !inputs.jump)
 			jumping = false;
+		if (!throwingHook && inputs.mouse1) {
+			throwingHook = true;
+			retractingHook = false;
+		}
 
 
 		if (!dashing && !slamming) {
@@ -95,6 +99,12 @@ public class PlayerMovement : Movement
 			// Jetpack
 			if (inputs.jet)
 				Jetpack();
+
+
+			if (throwingHook) {
+				ThrowHook(inputs.mouseWorld.normalized);
+			}
+
 		}
 		else if (dashing) {
 			Vector2 direction = (facingR)? Vector2.right : -Vector2.right;
@@ -103,12 +113,6 @@ public class PlayerMovement : Movement
 		}
 		else if (slamming) {
 			slamming = Slam();
-		}
-		else if (throwingHook) {
-			throwingHook = ThrowHook(inputs.mouseWorld.normalized);
-		}
-		else if (retractingHook) {
-			retractingHook = RetractHook(true);
 		}
 		
 		inputs.Reset();

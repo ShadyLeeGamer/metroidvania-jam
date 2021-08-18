@@ -157,8 +157,9 @@ public abstract class Movement : Entity
 
 	public float hookThrowSpeed = 10;
 	public float hookRetractTime = 1;
-	public float hookGravity = 1;
+	public float hookGravity = 0.4f;
 	public float chainLength = 4;
+	public float chainReflectVelocity = 1;
 	public GameObject hookPrefab;
 	Rigidbody2D hook;
 	Rigidbody2D CreateHook() {
@@ -168,29 +169,56 @@ public abstract class Movement : Entity
 		h.localPosition = Vector2.zero;
 		return h.GetComponent<Rigidbody2D>();
 	}
- 	public bool ThrowHook(Vector2 direction) { // =true when still throwing
+ 	public bool ThrowHook(Vector2 direction) { // =true when still throwing, =false when you can release
  		// Throw the hook
 		if (hook == null) {
 			hook = CreateHook();
 			hook.velocity = hookThrowSpeed * direction;
 			hook.gravityScale = hookGravity;
+			Debug.Log("thrown");
 		}
 		
+		// Dangle hook from player
+		Vector2 toHook = hook.transform.parent.position - hook.transform.position;
+		float hookDist = toHook.magnitude;
+		if (hookDist >= chainLength) {
+			// If hook out / moving out of chain range
+			hook.transform.position = (Vector2)transform.position + toHook;
+			Vector2 normal = toHook.normalized;
+			hook.velocity = ReflectVelocityCircle(hook, rb, normal, chainLength);
+			return false;
+		}
 		// If attached to a hookable, dangle the player from hook
 		if (hook.GetComponent<Collider2D>().IsTouchingLayers(7)) {
+			Debug.Log(Time.time);
 			hook.velocity = Vector2.zero;
-			float hookDist = Vector2.Distance(transform.position, hook.transform.position);
 			if (hookDist >= chainLength) {
-				// Pendulum - turn any non-tangent, outward velocity into some tangent
-				// reflect the outward velocity as if circle was a surface?
+				// If player out / moving out of chain range
+				transform.position = hook.transform.position;
+				Vector2 normal = -toHook.normalized;
+				rb.velocity = ReflectVelocityCircle(rb, hook, normal, chainLength);
 			}
 			return false;
 		}
-		// If attached to an enemy, pull both sides together
-		// If forced out of chain range, return false
+		// If attached to an enemy, turn the player into a static robot and move real player along the wire
+		
 		return true; // otherwise still throwing
 	}
-	public bool RetractHook(bool detach) { // =true when still retracting
+	Vector2 ReflectVelocityCircle(Rigidbody2D rTarget, Rigidbody2D rBase, Vector2 normal, float distance) {
+		// Keeps rTarget within a certain distance of rBase
+		// // by reflecting relative velocity when out of range
+		Vector2 relativeVelocity = chainReflectVelocity * (rTarget.velocity - rBase.velocity);
+		float dot = Vector2.Dot(normal, relativeVelocity);
+		if (dot < 0) {
+			float angle = Vector2.SignedAngle(Vector2.right, normal);
+			float vOffsetAngle = Vector2.SignedAngle(normal, -relativeVelocity);
+			angle -= vOffsetAngle;
+			angle *= Mathf.Deg2Rad;
+			return relativeVelocity.magnitude * new Vector2(Mathf.Cos(angle), Mathf.Sin(angle));
+		}
+		return rTarget.velocity;
+	}
+	public bool RetractHook(bool detach) { // =true when still retracting, =false when destroyed
 		if (hook == null) return false;
 		// Destroy when hook is fully retracted
 		Vector2 delta = hook.transform.position - transform.position;
@@ -202,7 +230,7 @@ public abstract class Movement : Entity
 		else if (detach) {
 			return true;
 		}
-		// Accelerate towards hook
+		// Accelerate towards hook, plus some height
 		else {
 			return true;
 		}

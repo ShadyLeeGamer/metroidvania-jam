@@ -11,6 +11,8 @@ public class PlayerInputs : MonoBehaviour
 	[HideInInspector] public bool jump = false;
 	[HideInInspector] public bool slam = false;
 	[HideInInspector] public bool jet = false;
+    [HideInInspector] public bool mouse1 = false;
+    [HideInInspector] public bool mouse2 = false;
 
 	void Start() {
 		Reset();
@@ -33,6 +35,8 @@ public class PlayerInputs : MonoBehaviour
     	jump |= Input.GetKey(JumpCode);
     	slam |= Input.GetKey(SlamCode);
     	jet |= Input.GetKey(JetCode);
+        mouse1 |= Input.GetMouseButtonDown(0);
+        mouse2 |= Input.GetMouseButtonDown(1);
     }
     public void Reset() {
     	hAxis = 0;
@@ -40,6 +44,8 @@ public class PlayerInputs : MonoBehaviour
     	jump = false;
     	slam = false;
     	jet = false;
+        mouse1 = false;
+        mouse2 = false;
     }
 
 
