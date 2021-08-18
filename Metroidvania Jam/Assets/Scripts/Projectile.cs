@@ -12,7 +12,7 @@ public class Projectile : MonoBehaviour, IPooledObject
 
     ObjectPooler objectPooler;
 
-    void Start()
+    void Awake()
     {
         objectPooler = ObjectPooler.Instance;
     }

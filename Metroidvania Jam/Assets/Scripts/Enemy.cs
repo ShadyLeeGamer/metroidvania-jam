@@ -2,9 +2,9 @@ using UnityEngine;
 
 public class Enemy : Movement
 {
-    [Header("Movement")]
+    [Header("Follow")]
     [SerializeField] float stoppingRange;
-
+    [SerializeField] float updateRate;
     Vector3 targetPos;
     Transform player;
 
@@ -26,7 +26,9 @@ public class Enemy : Movement
     [Header("Testing")]
     [SerializeField] bool drawGizmos;
 
-    Vector3 LookRayPos => transform.position + lookRaycastPosOffset;
+    Vector2 LookRayPos => transform.position
+                        + new Vector3(lookRaycastPosOffset.x * (transform.rotation.y == 0 ? 1 : -1),
+                                      lookRaycastPosOffset.y);
     Vector3 DiffWithTargetPos => targetPos - transform.position;
 
     bool TargetInRightDir => targetPos.x > transform.position.x;
