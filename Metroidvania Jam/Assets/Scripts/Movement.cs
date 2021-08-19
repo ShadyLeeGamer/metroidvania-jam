@@ -160,6 +160,7 @@ public abstract class Movement : Entity
 	public float hookRetractSpeed = 1;
 	public float hookRetractAcceleration = 1;
 	public float hookGravity = 0.4f;
+	public float hookDrag = 0.5f;
 	public float maxChainLength = 4;
 	public float chainReflectVelocity = 1;
 	public GameObject hookPrefab;
@@ -174,6 +175,7 @@ public abstract class Movement : Entity
 		hook = h.GetComponent<Rigidbody2D>();
 		hook.velocity = hookThrowSpeed * direction;
 		hook.gravityScale = hookGravity;
+		hook.drag = hookDrag;
 	}
 	void DestroyHook() {
 		if (hook != null) Destroy(hook.gameObject);
@@ -210,33 +212,40 @@ public abstract class Movement : Entity
 		// Search for a hookable
  		if (!retracting)
  			hookAttachedTo = SearchForCollision(hook, "Hookable");
-		
+		//Debug.Log(hookAttachedTo);
+
 		// Clamp hook / player within chain range
-		if (hookDist > chainLength) {
-			// Clamp hook to player
-			if (hookAttachedTo == null) {
-				Debug.Log("Clamping hook");
+		bool outOfRange = (hookDist > 1.01f * chainLength);
+		// Clamp hook to player
+		if (hookAttachedTo == null) {
+			hook.gravityScale = hookGravity;
+			if (outOfRange) {
+				//Debug.Log("Clamping hook");
 				hook.transform.position = (Vector2)transform.position + chainLength * pToHook.normalized;
-				hook.gravityScale = hookGravity;
-				//Vector2 normal = toHook.normalized;
-				//hook.velocity = ReflectVelocityCircle(hook, rb, normal, chainLength);
+				hook.velocity = ReflectVelocityCircle(hook, rb, chainLength);
 			}
-			// Clamp player to hook, if attached to something
-			else {
-				Debug.Log("Clamping player");
-				hook.transform.position = hookAttachedTo.transform.position;
-				transform.position = (Vector2)hook.transform.position - chainLength * pToHook.normalized;
-				hook.gravityScale = 0;
-				hook.velocity = Vector2.zero;
-				//Vector2 normal = pToHook.normalized;
-				//rb.velocity = ReflectVelocityCircle(rb, hook, normal, chainLength);
+		}
+		// Clamp player to hook, if attached to something
+		else {
+			Debug.Log(hookAttachedTo.transform.position);
+			hook.transform.position = hookAttachedTo.transform.position;
+			hook.gravityScale = 0;
+			hook.velocity = Vector2.zero;
+			if (outOfRange) {
+				//Debug.Log("Clamping player");
+				bool keepPosY = onGround;
+				Vector2 pos = (Vector2)hook.transform.position - chainLength * pToHook.normalized;
+				if (keepPosY) pos.y = transform.position.y;
+				transform.position = pos;
+				rb.velocity = ReflectVelocityCircle(rb, hook, chainLength);
 			}
 		}
 		return true;
 	}
-	Vector2 ReflectVelocityCircle(Rigidbody2D rTarget, Rigidbody2D rBase, Vector2 normal, float distance) {
+	Vector2 ReflectVelocityCircle(Rigidbody2D rTarget, Rigidbody2D rBase, float distance) {
 		// Keeps rTarget within a certain distance of rBase
 		// // by reflecting relative velocity when out of range
+		Vector2 normal = rBase.transform.position - rTarget.transform.position;
 		Vector2 relativeVelocity = chainReflectVelocity * (rTarget.velocity - rBase.velocity);
 		float dot = Vector2.Dot(normal, relativeVelocity);
 		if (dot < 0) {
