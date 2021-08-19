@@ -3,18 +3,18 @@ using System.Collections.Generic;
 using UnityEngine;
 
 [RequireComponent(typeof(PlayerInputs))]
-public class PlayerMovement : Movement
+public class RobotMovement : Movement
 {
 
 	// todo: generalize inputs script, then rename to RobotMovement
 
 	public Transform faceParent;
 
-	PlayerInputs inputs;
+	Inputs inputs;
 	public override void Start() {
 		base.Start(); // GET RB
 
-		inputs = GetComponent<PlayerInputs>();
+		inputs = GetComponent<Inputs>();
 	}
 
 	// todo: move this into a RobotAnimations script
@@ -47,22 +47,22 @@ public class PlayerMovement : Movement
 	bool retractingHook = false;
 	void FixedUpdate() {
 		//Debug.Log(sliding + " " + dashing + " " + slamming + " " + Time.time + " " + m.GetJumpCharges());
-		
+
 		// Start ability - dash, slam, or jump
 		if (dCooldown > 0) dCooldown -= Time.fixedDeltaTime;
 		if (wCooldown > 0) wCooldown -= Time.fixedDeltaTime;
-		if (!dashing && inputs.dash && dCooldown <= 0)
+		if (!dashing && (inputs.DoubleLeft || inputs.DoubleRight) && dCooldown <= 0)
 			dashing = true;
-		if (!slamming && inputs.slam) {
+		if (!slamming && inputs.DownGetDown) {
 			slamming = true;
 			sliding = false;
 		}
-		if (jumping && !inputs.jump)
+		if (jumping && !inputs.Up)
 			jumping = false;
-		if (inputs.mouse1) {
+		if (inputs.Mouse1) {
 			if (!hooking) {
 				hooking = true;
-				ThrowHook((inputs.mouseWorld - (Vector2)transform.position).normalized);
+				ThrowHook((inputs.Cursor - (Vector2)transform.position).normalized);
 			}
 			else retractingHook = true;
 		}
@@ -72,7 +72,7 @@ public class PlayerMovement : Movement
 			// Midair move horizontally
 			if (!sliding) {
 				if (wCooldown <= 0) {
-					SmoothMove(inputs.hAxis);
+					SmoothMove(inputs.Horizontal);
 					FaceTowardsVelocity();
 				}
 			}
@@ -81,17 +81,17 @@ public class PlayerMovement : Movement
 				// Move off wall
 				if (onWall == 1) {
 					FaceRight(true);
-					if (inputs.hAxis > 0)
-						SmoothMove(inputs.hAxis);
+					if (inputs.Horizontal > 0)
+						SmoothMove(inputs.Horizontal);
 				}
 				if (onWall == -1) {
 					FaceRight(false);
-					if (inputs.hAxis < 0)
-						SmoothMove(inputs.hAxis);
+					if (inputs.Horizontal < 0)
+						SmoothMove(inputs.Horizontal);
 				}
 			}
 			// Jump / walljump
-			if (inputs.jump && !jumping) {
+			if (inputs.Up && !jumping) {
 				jumping = true;
 				if (!sliding) {
 					Jump();
@@ -103,7 +103,7 @@ public class PlayerMovement : Movement
 				if (hooking) retractingHook = true;
 			}
 			// Jetpack
-			if (inputs.jet) {
+			if (inputs.Jump) {
 				Jetpack();
 				if (hooking) retractingHook = true;
 			}
@@ -131,7 +131,7 @@ public class PlayerMovement : Movement
 			if (hooking) retractingHook = true;
 		}
 		
-		inputs.Reset();
+		inputs.ResetKeyDown();
 	}
 
 

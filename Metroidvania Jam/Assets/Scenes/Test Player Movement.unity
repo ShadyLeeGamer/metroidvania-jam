@@ -824,6 +824,7 @@ GameObject:
   - component: {fileID: 717139694}
   - component: {fileID: 717139693}
   - component: {fileID: 717139692}
+  - component: {fileID: 717139691}
   - component: {fileID: 717139696}
   - component: {fileID: 717139690}
   m_Layer: 8
@@ -848,7 +849,7 @@ MonoBehaviour:
   maxHealth: 100
   rb: {fileID: 0}
   horizontalSpeed: 5
-  accelerateTime: 0.1
+  accelerateTime: 0.5
   decelerateTime: 1
   dashSpeed: 15
   dashTime: 0.2
@@ -873,6 +874,43 @@ MonoBehaviour:
   faceParent: {fileID: 973008352}
   dashCooldown: 0.3
   wallCooldown: 0.2
+--- !u!114 &717139691
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 717139689}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 856c518de80243d4a8336466d3f7f1bb, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Up: 0
+  Down: 0
+  Left: 0
+  Right: 0
+  ShootUp: 0
+  ShootDown: 0
+  ShootLeft: 0
+  ShootRight: 0
+  Jump: 0
+  SwapTool: 0
+  Cursor: {x: 0, y: 0}
+  Mouse1: 0
+  Mouse2: 0
+  UpGetDown: 0
+  DownGetDown: 0
+  LeftGetDown: 0
+  RightGetDown: 0
+  JumpGetDown: 0
+  SwapGetDown: 0
+  Mouse1GetDown: 0
+  Mouse2GetDown: 0
+  Horizontal: 0
+  DoubleLeft: 0
+  DoubleRight: 0
+  doubleTapTime: 0.4
 --- !u!50 &717139692
 Rigidbody2D:
   serializedVersion: 4
@@ -1000,14 +1038,16 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2cd3127bd4801f648b7260959f4861c8, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  mouseWorld: {x: 0, y: 0}
-  hAxis: 0
-  dash: 0
-  jump: 0
-  slam: 0
-  jet: 0
-  mouse1: 0
-  mouse2: 0
+  UpCode: 119
+  DownCode: 115
+  LeftCode: 97
+  RightCode: 100
+  ShootUpCode: 273
+  ShootDownCode: 274
+  ShootLeftCode: 276
+  ShootRightCode: 275
+  JumpCode: 32
+  SwapCode: 101
 --- !u!1 &762146528
 GameObject:
   m_ObjectHideFlags: 0

@@ -227,7 +227,6 @@ public abstract class Movement : Entity
 		}
 		// Clamp player to hook, if attached to something
 		else {
-			Debug.Log(hookAttachedTo.transform.position);
 			hook.transform.position = hookAttachedTo.transform.position;
 			hook.gravityScale = 0;
 			hook.velocity = Vector2.zero;
@@ -249,6 +248,7 @@ public abstract class Movement : Entity
 		Vector2 relativeVelocity = chainReflectVelocity * (rTarget.velocity - rBase.velocity);
 		float dot = Vector2.Dot(normal, relativeVelocity);
 		if (dot < 0) {
+			// todo: add smooth swing
 			float angle = Vector2.SignedAngle(Vector2.right, normal);
 			float vOffsetAngle = Vector2.SignedAngle(normal, -relativeVelocity);
 			angle -= vOffsetAngle;
@@ -277,7 +277,6 @@ public abstract class Movement : Entity
 	}
 
 	// todo: wall + ground crawl for enemies
-	// // hook
 	// // driving
 
 

@@ -2,50 +2,50 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
+[RequireComponent(typeof(Inputs))]
 public class PlayerInputs : MonoBehaviour
 {
 
-	[HideInInspector] public Vector2 mouseWorld = Vector2.zero;
-	[HideInInspector] public float hAxis = 0;
-	[HideInInspector] public bool dash = false;
-	[HideInInspector] public bool jump = false;
-	[HideInInspector] public bool slam = false;
-	[HideInInspector] public bool jet = false;
-    [HideInInspector] public bool mouse1 = false;
-    [HideInInspector] public bool mouse2 = false;
+	// Todo: move to Settings
+    [HideInInspector] public KeyCode UpCode = KeyCode.W;
+    [HideInInspector] public KeyCode DownCode = KeyCode.S;
+    [HideInInspector] public KeyCode LeftCode = KeyCode.A;
+    [HideInInspector] public KeyCode RightCode = KeyCode.D;
 
-	void Start() {
-		Reset();
-	}
+    [HideInInspector] public KeyCode ShootUpCode = KeyCode.UpArrow;
+    [HideInInspector] public KeyCode ShootDownCode = KeyCode.DownArrow;
+    [HideInInspector] public KeyCode ShootLeftCode = KeyCode.LeftArrow;
+    [HideInInspector] public KeyCode ShootRightCode = KeyCode.RightArrow;
+
+    [HideInInspector] public KeyCode JumpCode = KeyCode.Space;
+    [HideInInspector] public KeyCode SwapCode = KeyCode.E;
+
+
+    // todo: someone please make this script inherit Inputs
+    Inputs inp;
+    void Start() {
+        inp = GetComponent<Inputs>();
+    }
     void Update() {
-        UpdateInputs();
+        UpdateRaw();
     }
+    void UpdateRaw() {
+        inp.Up = Input.GetKey(UpCode);
+        inp.Down = Input.GetKey(DownCode);
+        inp.Left = Input.GetKey(LeftCode);
+        inp.Right = Input.GetKey(RightCode);
 
+        inp.ShootUp = Input.GetKey(ShootUpCode);
+        inp.ShootDown = Input.GetKey(ShootDownCode);
+        inp.ShootLeft = Input.GetKey(ShootLeftCode);
+        inp.ShootRight = Input.GetKey(ShootRightCode);
 
+        inp.Jump = Input.GetKey(JumpCode);
+        inp.SwapTool = Input.GetKey(SwapCode);
 
-    string HorizontalAxis = "Horizontal";
-    KeyCode DashCode = KeyCode.LeftShift;
-    KeyCode JumpCode = KeyCode.W;
-    KeyCode SlamCode = KeyCode.S;
-    KeyCode JetCode = KeyCode.Space;
-    void UpdateInputs() {
-    	mouseWorld = Camera.main.ScreenToWorldPoint(Input.mousePosition);
-    	hAxis = Input.GetAxis(HorizontalAxis);
-    	dash |= Input.GetKey(DashCode);
-    	jump |= Input.GetKey(JumpCode);
-    	slam |= Input.GetKey(SlamCode);
-    	jet |= Input.GetKey(JetCode);
-        mouse1 |= Input.GetMouseButtonDown(0);
-        mouse2 |= Input.GetMouseButtonDown(1);
-    }
-    public void Reset() {
-    	hAxis = 0;
-    	dash = false;
-    	jump = false;
-    	slam = false;
-    	jet = false;
-        mouse1 = false;
-        mouse2 = false;
+        inp.Cursor = Camera.main.ScreenToWorldPoint(Input.mousePosition);
+        inp.Mouse1 = Input.GetMouseButton(0);
+        inp.Mouse2 = Input.GetMouseButton(1);
     }
 
 
