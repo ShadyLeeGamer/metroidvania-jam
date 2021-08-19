@@ -44,7 +44,7 @@ public class Inputs : MonoBehaviour
 	bool swapWasPressed = false;
 	bool mouse1WasPressed = false;
 	bool mouse2WasPressed = false;
-	void CalculateKeyDown() {
+	public void CalculateKeyDown() {
 		if (upWasPressed) UpGetDown = false;
 		else UpGetDown |= Up;
 		if (downWasPressed) DownGetDown = false;
@@ -103,23 +103,24 @@ public class Inputs : MonoBehaviour
 	bool reset = false;
 	float dtTimer = -1;
 	public float doubleTapTime = 0.4f;
-	void CalculateExtra() {
+	public void CalculateExtra() {
 		Horizontal = 0;
         if (Left && !Right) Horizontal = -1;
         if (Right && !Left) Horizontal = 1;
         
         // Double-tap
+        //Debug.Log(dtTimer + " " + Horizontal + " " + LeftGetDown + ":" + RightGetDown);
         if (dtTimer >= 0) {
         	// set / reset timer
         	if (dtTimer < doubleTapTime) {
         		dtTimer += Time.deltaTime;
         		// finish dash
         		if (!LeftGetDown && !RightGetDown) reset = true;
-        		if (LeftGetDown && reset) {
+        		if (LeftGetDown && doingLeft && reset) {
         			DoubleLeft = true;
         			dtTimer = -1;
         		}
-        		if (RightGetDown && reset) {
+        		if (RightGetDown && !doingLeft && reset) {
         			DoubleRight = true;
         			dtTimer = -1;
         		}
@@ -141,12 +142,6 @@ public class Inputs : MonoBehaviour
         		reset = false;
         	}
         }
-	}
-
-	
-	void Update() {
-		CalculateKeyDown();
-		CalculateExtra();
 	}
 
 

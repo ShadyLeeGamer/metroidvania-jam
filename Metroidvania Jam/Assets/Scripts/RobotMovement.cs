@@ -6,8 +6,6 @@ using UnityEngine;
 public class RobotMovement : Movement
 {
 
-	// todo: generalize inputs script, then rename to RobotMovement
-
 	public Transform faceParent;
 
 	Inputs inputs;
@@ -18,7 +16,6 @@ public class RobotMovement : Movement
 	}
 
 	// todo: move this into a RobotAnimations script
-	bool facingR = true;
 	void FaceTowardsVelocity() {
 		if (rb.velocity.x > 0.0001f)
 			FaceRight(true);
@@ -27,11 +24,9 @@ public class RobotMovement : Movement
 	}
 	void FaceRight(bool right) {
 		if (right) {
-			facingR = true;
 			faceParent.eulerAngles = Vector2.zero;
 		}
 		else {
-			facingR = false;
 			faceParent.eulerAngles = 180 * Vector2.up;
 		}
 	}
@@ -42,29 +37,39 @@ public class RobotMovement : Movement
 	float wCooldown = 0;
 	bool dashing = false;
 	bool slamming = false;
-	bool jumping = false;
 	bool hooking = false;
 	bool retractingHook = false;
 	void FixedUpdate() {
-		//Debug.Log(sliding + " " + dashing + " " + slamming + " " + Time.time + " " + m.GetJumpCharges());
+		//Debug.Log(sliding + " " + dashing + " " + slamming + " " + Time.time + " " + GetJumpCharges() + " " + GetDashCharges());
+		inputs.CalculateKeyDown();
+		inputs.CalculateExtra();
 
 		// Start ability - dash, slam, or jump
 		if (dCooldown > 0) dCooldown -= Time.fixedDeltaTime;
 		if (wCooldown > 0) wCooldown -= Time.fixedDeltaTime;
-		if (!dashing && (inputs.DoubleLeft || inputs.DoubleRight) && dCooldown <= 0)
+		if (!dashing && (inputs.DoubleLeft || inputs.DoubleRight) && dCooldown <= 0) {
 			dashing = true;
+			if (hooking) {
+				retractingHook = true;
+				RetractHook(false);
+			}
+		}
 		if (!slamming && inputs.DownGetDown) {
 			slamming = true;
 			sliding = false;
+			if (hooking) {
+				retractingHook = true;
+				RetractHook(false);
+			}
 		}
-		if (jumping && !inputs.Up)
-			jumping = false;
-		if (inputs.Mouse1) {
+		if (inputs.Mouse1GetDown) {
 			if (!hooking) {
 				hooking = true;
 				ThrowHook((inputs.Cursor - (Vector2)transform.position).normalized);
 			}
-			else retractingHook = true;
+			else {
+				retractingHook = true;
+			}
 		}
 
 
@@ -91,8 +96,7 @@ public class RobotMovement : Movement
 				}
 			}
 			// Jump / walljump
-			if (inputs.Up && !jumping) {
-				jumping = true;
+			if (inputs.UpGetDown) {
 				if (!sliding) {
 					Jump();
 				}
@@ -100,29 +104,37 @@ public class RobotMovement : Movement
 					wCooldown = wallCooldown;
 					Walljump();
 				}
-				if (hooking) retractingHook = true;
+				if (hooking) {
+					retractingHook = true;
+					RetractHook(false);
+				}
 			}
 			// Jetpack
 			if (inputs.Jump) {
 				Jetpack();
-				if (hooking) retractingHook = true;
+				if (hooking) {
+					retractingHook = true;
+					RetractHook(false);
+				}
 			}
 
 			// Hook
 			if (hooking) {
-				hooking = Hook();
 				if (retractingHook) {
-					retractingHook = hooking;
-					// Transfer to new robot or somethin
-					//GameObject attachedTo = GetHookAttachedTo();
-					RetractHook();
+					GameObject attachedTo = GetHookAttachedTo();
+					// Transfer to new robot if attachedTo another robot
+					RetractHook(attachedTo != null);
 				}
+				hooking = Hook();
+				if (!hooking) retractingHook = false;
 			}
 
 		}
 		else if (dashing) {
-			Vector2 direction = (facingR)? Vector2.right : -Vector2.right;
-			dashing = Dash(direction.normalized);
+			if (inputs.DoubleRight) dashing = Dash(Vector2.right);
+			else if (inputs.DoubleLeft) dashing = Dash(-Vector2.right);
+			else dashing = false;
+			
 			if (!dashing) dCooldown = dashCooldown;
 			if (hooking) retractingHook = true;
 		}

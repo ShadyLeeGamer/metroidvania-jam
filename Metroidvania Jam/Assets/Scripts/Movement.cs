@@ -102,6 +102,7 @@ public abstract class Movement : Entity
 		if (jCharges <= 0) return;
 		if (onGround || onWall == 0) {
 			jCharges--;
+			rb.velocity = new Vector2(rb.velocity.x, 0);
 			JumpDirection(Vector2.up, jumpSpeed);
 		}
 	}
@@ -109,12 +110,13 @@ public abstract class Movement : Entity
 		if (jCharges <= 0) return;
 		if (!onGround && onWall != 0) {
 			jCharges--;
+			rb.velocity = Vector2.zero;
 			if (onWall == 1) JumpDegrees(walljumpNormalDegrees, walljumpSpeed);
 			if (onWall == -1) JumpDegrees(180-walljumpNormalDegrees, walljumpSpeed);
 		}
 	}
 	void JumpDirection(Vector2 direction, float speed) {
-		rb.velocity = speed * direction;
+		rb.velocity += speed * direction.normalized;
 	}
 	void JumpDegrees(float deg, float speed) {
 		float rad = deg * Mathf.Deg2Rad;
@@ -157,12 +159,14 @@ public abstract class Movement : Entity
 
 
 	public float hookThrowSpeed = 10;
-	public float hookRetractSpeed = 1;
-	public float hookRetractAcceleration = 1;
+	public float hookRetractSpeed = 10;
+	public float hookRetractAcceleration = 5;
+	public float hookLaunchSpeed = 10;
 	public float hookGravity = 0.4f;
 	public float hookDrag = 0.5f;
 	public float maxChainLength = 4;
-	public float chainReflectVelocity = 1;
+	public float hookRestitution = 0.6f;
+	public float playerRestitution = 0.95f;
 	public GameObject hookPrefab;
 	Rigidbody2D hook = null;
 	GameObject hookAttachedTo = null;
@@ -204,7 +208,7 @@ public abstract class Movement : Entity
  		Vector2 pToHook = hook.transform.position - transform.position;
 		float hookDist = pToHook.magnitude;
 		// Destroy when close enough to player
-		if (hookDist < 0.1f && retracting) {
+		if (hookDist < 0.3f && retracting) {
 			DestroyHook();
 			return false;
 		}
@@ -222,7 +226,7 @@ public abstract class Movement : Entity
 			if (outOfRange) {
 				//Debug.Log("Clamping hook");
 				hook.transform.position = (Vector2)transform.position + chainLength * pToHook.normalized;
-				hook.velocity = ReflectVelocityCircle(hook, rb, chainLength);
+				hook.velocity = ReflectVelocityCircle(hook, rb, chainLength, hookRestitution);
 			}
 		}
 		// Clamp player to hook, if attached to something
@@ -236,19 +240,19 @@ public abstract class Movement : Entity
 				Vector2 pos = (Vector2)hook.transform.position - chainLength * pToHook.normalized;
 				if (keepPosY) pos.y = transform.position.y;
 				transform.position = pos;
-				rb.velocity = ReflectVelocityCircle(rb, hook, chainLength);
+				rb.velocity = ReflectVelocityCircle(rb, hook, chainLength, playerRestitution);
 			}
 		}
 		return true;
 	}
-	Vector2 ReflectVelocityCircle(Rigidbody2D rTarget, Rigidbody2D rBase, float distance) {
+	Vector2 ReflectVelocityCircle(Rigidbody2D rTarget, Rigidbody2D rBase, float distance, float restitution) {
 		// Keeps rTarget within a certain distance of rBase
 		// // by reflecting relative velocity when out of range
 		Vector2 normal = rBase.transform.position - rTarget.transform.position;
-		Vector2 relativeVelocity = chainReflectVelocity * (rTarget.velocity - rBase.velocity);
+		Vector2 relativeVelocity = rTarget.velocity - rBase.velocity;
+		relativeVelocity *= restitution;
 		float dot = Vector2.Dot(normal, relativeVelocity);
-		if (dot < 0) {
-			// todo: add smooth swing
+		if (dot < 0) { // if travelling outward
 			float angle = Vector2.SignedAngle(Vector2.right, normal);
 			float vOffsetAngle = Vector2.SignedAngle(normal, -relativeVelocity);
 			angle -= vOffsetAngle;
@@ -259,29 +263,50 @@ public abstract class Movement : Entity
 	}
 	bool retracting = false;
 	float rTimer = 0;
-	public void RetractHook() {
+	public void RetractHook(bool launch) {
 		if (hook == null) return;
 		if (!retracting) {
 			rTimer = 0;
-			if (hookAttachedTo != null) {
+			if (launch) {
 				// Launch player up / towards hook
 				Jump();
-				hookAttachedTo = null;
+				Vector2 toHook = hookAttachedTo.transform.position - transform.position;
+				JumpDirection(toHook.normalized, hookLaunchSpeed);
 			}
+			hookAttachedTo = null;
 		}
 		retracting = true;
 
 		// Decrease chain length
 		rTimer += Time.fixedDeltaTime;
 		chainLength = maxChainLength - hookRetractSpeed*rTimer - 0.5f*hookRetractAcceleration*Mathf.Pow(rTimer, 2);
+		chainLength = Mathf.Clamp(chainLength, 0, maxChainLength);
 	}
 
 	// todo: wall + ground crawl for enemies
 	// // driving
 
 
+	public virtual void Update() {
+		//Debug.Log(onGround);
+	}
 
 	public virtual void OnTriggerEnter2D(Collider2D info) {
+		GameObject other = info.gameObject;
+		if (other.tag == "Ground") {
+			onGround = true;
+			ResetCharges();
+		}
+		if (other.tag == "Wall") {
+			if (other.transform.position.x < transform.position.x)
+				onWall = 1;
+			else onWall = -1;
+			ResetCharges();
+		}
+	}
+	// sloppy bug fix with Stay(): We have multiple Ground triggers in scene.
+	// // when trigger leaves, sets onGround = false even though it's touching a different Ground
+	public virtual void OnTriggerStay2D(Collider2D info) {
 		GameObject other = info.gameObject;
 		if (other.tag == "Ground") {
 			onGround = true;
