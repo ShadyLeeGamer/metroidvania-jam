@@ -11,8 +11,11 @@ public class PlayerInputs : MonoBehaviour
 	[HideInInspector] public bool jump = false;
 	[HideInInspector] public bool slam = false;
 	[HideInInspector] public bool jet = false;
-
+    [HideInInspector] public bool mouse1 = false;
+    [HideInInspector] public bool mouse2 = false;
 	[HideInInspector] public bool shoot = false;
+	[HideInInspector] public bool lookUp = false;
+	[HideInInspector] public bool lookDown = false;
 	void Start() {
 		Reset();
 	}
@@ -28,6 +31,9 @@ public class PlayerInputs : MonoBehaviour
     KeyCode SlamCode = KeyCode.S;
     KeyCode JetCode = KeyCode.Space;
 	KeyCode ShootCode = KeyCode.Z;
+	KeyCode LookUpCode = KeyCode.UpArrow;
+	KeyCode LookDownCode = KeyCode.DownArrow;
+	
     void UpdateInputs() {
     	mouseWorld = Camera.main.ScreenToWorldPoint(Input.mousePosition);
     	hAxis = Input.GetAxis(HorizontalAxis);
@@ -36,6 +42,10 @@ public class PlayerInputs : MonoBehaviour
     	slam |= Input.GetKey(SlamCode);
     	jet |= Input.GetKey(JetCode);
 		shoot |= Input.GetKey(ShootCode);
+        mouse1 |= Input.GetMouseButtonDown(0);
+        mouse2 |= Input.GetMouseButtonDown(1);
+		lookUp |= Input.GetKey(LookUpCode);
+		lookDown |= Input.GetKey(LookDownCode);
     }
     public void Reset() {
     	hAxis = 0;
@@ -44,6 +54,10 @@ public class PlayerInputs : MonoBehaviour
     	slam = false;
     	jet = false;
 		shoot = false;
+        mouse1 = false;
+        mouse2 = false;
+		lookUp = false;
+		lookDown = false;
     }
 
 

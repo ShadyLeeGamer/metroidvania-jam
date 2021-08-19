@@ -30,7 +30,6 @@ public class Gun : MonoBehaviour
 
     public void Shoot(Vector2 direction) {
         if (reloading) return;
-        Debug.Log("pew");
         GameObject bullet = Instantiate(bulletPrefab, transform.position, Quaternion.identity);
         bullet.GetComponent<Rigidbody2D>().velocity = direction * bulletSpeed;
         reloading = true;
