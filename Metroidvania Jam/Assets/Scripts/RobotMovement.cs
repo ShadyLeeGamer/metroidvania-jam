@@ -2,33 +2,17 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-[RequireComponent(typeof(PlayerInputs))]
+[RequireComponent(typeof(Inputs), typeof(RobotAnimations))]
 public class RobotMovement : Movement
 {
 
-	public Transform faceParent;
-
 	Inputs inputs;
+	RobotAnimations anim;
 	public override void Start() {
 		base.Start(); // GET RB
 
 		inputs = GetComponent<Inputs>();
-	}
-
-	// todo: move this into a RobotAnimations script
-	void FaceTowardsVelocity() {
-		if (rb.velocity.x > 0.0001f)
-			FaceRight(true);
-		if (rb.velocity.x < -0.0001f)
-			FaceRight(false);
-	}
-	void FaceRight(bool right) {
-		if (right) {
-			faceParent.eulerAngles = Vector2.zero;
-		}
-		else {
-			faceParent.eulerAngles = 180 * Vector2.up;
-		}
+		anim = GetComponent<RobotAnimations>();
 	}
 
 	public float dashCooldown = 0.3f;
@@ -78,19 +62,19 @@ public class RobotMovement : Movement
 			if (!sliding) {
 				if (wCooldown <= 0) {
 					SmoothMove(inputs.Horizontal);
-					FaceTowardsVelocity();
+					if (!hooking || retractingHook) anim.FaceVelocity();
 				}
 			}
 			else {
 				int onWall = Wallslide();
 				// Move off wall
 				if (onWall == 1) {
-					FaceRight(true);
+					anim.FaceRight(true);
 					if (inputs.Horizontal > 0)
 						SmoothMove(inputs.Horizontal);
 				}
 				if (onWall == -1) {
-					FaceRight(false);
+					anim.FaceRight(false);
 					if (inputs.Horizontal < 0)
 						SmoothMove(inputs.Horizontal);
 				}
@@ -120,15 +104,21 @@ public class RobotMovement : Movement
 
 			// Hook
 			if (hooking) {
-				// todo: anim.DrawHookChain();
 				if (retractingHook) {
 					GameObject attachedTo = GetHookAttachedTo();
-					// Transfer to new robot if attachedTo another robot
-					// check if this is player
-					RetractHook(attachedTo != null);
+					if (attachedTo != null && attachedTo.name == "Robot Outlet") {
+						// Transfer to new robot if attachedTo another robot
+						Transfer();
+					}
+					else RetractHook(attachedTo != null);
 				}
 				hooking = Hook();
-				if (!hooking) retractingHook = false;
+				anim.FaceDirection(GetHook().transform.position - transform.position);
+				anim.UpdateChain("Parabola", true, true);
+				if (!hooking) {
+					anim.DestroyChain();
+					retractingHook = false;
+				}
 			}
 
 		}
@@ -176,32 +166,44 @@ public class RobotMovement : Movement
 	public GameObject blueLightPrefab;
 	bool Transfer() {
 		if (transferTimer < 0) {
+			transferTimer = 0;
 			// Create blue light
 			Transform parent = GameObject.Find("Environment").transform.Find("Projectiles");
 			blueLight = Instantiate(blueLightPrefab, parent);
-			blueLight.transform.position = transform.Find("GunTip").position;
+			blueLight.transform.position = transform.Find("Sprites").Find("Gun").Find("GunTip").position;
 			gameObject.name = robotName;
 			blueLight.name = "Player";
 			Camera.main.GetComponent<CameraController>().FindPlayer();
+			// Cannot move during transfer
+			GameObject robot = GetHookAttachedTo().transform.parent.parent.gameObject;
+			GetComponent<PlayerInputs>().enabled = false;
+			if (robot.GetComponent<RobotMovement>().robotName == "Enemy")
+				robot.GetComponent<EnemyRobotInputs>().enabled = false;
+			rb.constraints = RigidbodyConstraints2D.FreezeAll;
+			robot.GetComponent<Rigidbody2D>().constraints = RigidbodyConstraints2D.FreezeAll;
 		}
 		else if (transferTimer < transferTime) {
+			transferTimer += Time.fixedDeltaTime;
 			// Move blue light along hook chain
-			// // todo: move along the RobotAnimations chain
-			// blueLight.transform.position = anim.PosAlongChain(transferTimer / transferTime);
+			blueLight.transform.position = anim.PosAlongChain(transferTimer / transferTime);
 		}
 		else {
 			// Transfer to robot
 			Destroy(blueLight);
-			GameObject robot = GetHookAttachedTo().transform.parent.gameObject;
+			GameObject robot = GetHookAttachedTo().transform.parent.parent.gameObject;
 			robot.name = "Player";
 			Camera.main.GetComponent<CameraController>().FindPlayer();
 			Destroy(GetComponent<PlayerInputs>());
 			robot.AddComponent<PlayerInputs>();
+			rb.constraints = RigidbodyConstraints2D.FreezeRotation;
+			robot.GetComponent<Rigidbody2D>().constraints = RigidbodyConstraints2D.FreezeRotation;
 			// Enable / disable to preserve settings
 			if (robotName == "Enemy")
 				GetComponent<EnemyRobotInputs>().enabled = true;
 			if (robot.GetComponent<RobotMovement>().robotName == "Enemy")
 				robot.GetComponent<EnemyRobotInputs>().enabled = false;
+			// Prevent infinite transfer
+			if (hooking) RetractHook(false);
 			return false;
 		}
 		return true;

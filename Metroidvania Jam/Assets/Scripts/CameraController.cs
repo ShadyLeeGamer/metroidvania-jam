@@ -8,6 +8,7 @@ public class CameraController : MonoBehaviour
 	public Vector3 offset = new Vector3(0, 0, -10);
     void Start() {
         FindPlayer();
+        transform.position = offset;
     }
     Transform player;
     public void FindPlayer() {
@@ -49,6 +50,7 @@ public class CameraController : MonoBehaviour
 	int oldLook = 0;
 	int LookDirection() {
 		Inputs pInputs = player.GetComponent<Inputs>();
+		if (pInputs == null) return 0;
 		int look = 0;
 		if (pInputs.ShootUp && !pInputs.ShootDown)
 			look = 1;
@@ -100,6 +102,7 @@ public class CameraController : MonoBehaviour
 				clampIndex = i;
 				return pos;
 			}
+			prevBP = BP;
 		}
 		// If not inside any regions, clamp to the prev region.
 		if (clampIndex == -1) return pos;
@@ -116,5 +119,47 @@ public class CameraController : MonoBehaviour
 			pos.y = Mathf.Clamp(pos.y, v2.y, v1.y);
 		return pos;
 	}
+
+
+	// To use room debug:
+	// Enable Gizmos in game view window (there's a button)
+	public bool debug = false;
+	public bool gizmoCamPos = true;
+	public bool gizmoRooms = true;
+    void OnDrawGizmos() {
+    	if (!debug) return;
+
+    	float nonZero = 0;
+    	Vector2 prevBP = borderPoints[0];
+		for (int i = 0; i < borderPoints.Count-1; i++) {
+			Vector2 BP = borderPoints[i+1];
+			Vector2 center = (prevBP + BP) / 2;
+			Vector2 size = (BP - prevBP);
+			if (size.x < 0) size.x = -size.x;
+			if (size.y < 0) size.y = -size.y;
+			float progress = nonZero / (borderPoints.Count-1);
+			
+			if (size.x != 0 && size.y != 0) {
+				Color c;
+				if (gizmoRooms) {
+					Vector3 screen = Camera.main.ScreenToWorldPoint(new Vector2(Screen.width, Screen.height)) - Camera.main.ScreenToWorldPoint(Vector2.zero);
+					//Debug.Log(screen + " " + Screen.width + " " + Screen.height + " " + Camera.main.ScreenToWorldPoint(new Vector2(Screen.width, Screen.height)) + " " + Camera.main.ScreenToWorldPoint(Vector2.zero));
+					c = Color.yellow + progress * (Color.red - Color.yellow);
+					c.a = 0.1f;
+					Gizmos.color = c;
+					Gizmos.DrawCube(new Vector3(center.x, center.y, 5), new Vector3(size.x + screen.x, size.y + screen.y, 1));
+				}
+				if (gizmoCamPos) {
+					c = Color.green + progress * (Color.blue - Color.green);
+					c.a = 0.2f;
+					Gizmos.color = c;
+					Gizmos.DrawCube(new Vector3(center.x, center.y, -5), new Vector3(size.x, size.y, 1));
+				}
+			}
+			else nonZero++;
+
+			prevBP = BP;
+    	}
+    }
 
 }

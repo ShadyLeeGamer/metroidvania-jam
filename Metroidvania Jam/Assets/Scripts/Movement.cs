@@ -166,6 +166,7 @@ public abstract class Movement : Entity
 	public float hookDrag = 0.5f;
 	public float maxChainLength = 4;
 	public float hookRestitution = 0.6f;
+	public float hookInsertion = 0.2f;
 	public float playerRestitution = 0.95f;
 	public GameObject hookPrefab;
 	Rigidbody2D hook = null;
@@ -174,18 +175,22 @@ public abstract class Movement : Entity
 	public void ThrowHook(Vector2 direction) {
 		DestroyHook();
 		Transform h = Instantiate(hookPrefab).transform;
-		h.parent = GameObject.Find("Environment").transform.Find("Projectiles");;
-		h.localPosition = transform.Find("GunTip").position;
+		h.parent = GameObject.Find("Environment").transform.Find("Projectiles").Find("Hooks");
+		h.localPosition = transform.Find("Sprites").Find("Gun").Find("GunTip").position;
 		hook = h.GetComponent<Rigidbody2D>();
 		hook.velocity = hookThrowSpeed * direction;
 		hook.gravityScale = hookGravity;
 		hook.drag = hookDrag;
+		Physics2D.IgnoreCollision(transform.Find("Sprites").Find("Robot Outlet").GetComponent<Collider2D>(), hook.GetComponent<Collider2D>());
 	}
 	void DestroyHook() {
 		if (hook != null) Destroy(hook.gameObject);
 		hookAttachedTo = null;
 		chainLength = maxChainLength;
 		retracting = false;
+	}
+	public Rigidbody2D GetHook() {
+		return hook;
 	}
 	public GameObject GetHookAttachedTo() {
 		return hookAttachedTo;
@@ -223,6 +228,7 @@ public abstract class Movement : Entity
 		// Clamp hook to player
 		if (hookAttachedTo == null) {
 			hook.gravityScale = hookGravity;
+			hook.constraints = RigidbodyConstraints2D.FreezeRotation;
 			if (outOfRange) {
 				//Debug.Log("Clamping hook");
 				hook.transform.position = (Vector2)transform.position + chainLength * pToHook.normalized;
@@ -231,9 +237,11 @@ public abstract class Movement : Entity
 		}
 		// Clamp player to hook, if attached to something
 		else {
-			hook.transform.position = hookAttachedTo.transform.position;
+			hook.transform.position = hookAttachedTo.transform.position + hookAttachedTo.transform.up * hookInsertion;
+			// Rotation handled by RobotAnimations
 			hook.gravityScale = 0;
 			hook.velocity = Vector2.zero;
+			hook.constraints = RigidbodyConstraints2D.FreezeAll;
 			if (outOfRange) {
 				//Debug.Log("Clamping player");
 				bool keepPosY = onGround;
@@ -245,6 +253,7 @@ public abstract class Movement : Entity
 		}
 		return true;
 	}
+	// todo: doesnt come back to GunTip
 	Vector2 ReflectVelocityCircle(Rigidbody2D rTarget, Rigidbody2D rBase, float distance, float restitution) {
 		// Keeps rTarget within a certain distance of rBase
 		// // by reflecting relative velocity when out of range
