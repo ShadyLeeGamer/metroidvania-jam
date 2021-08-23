@@ -1,4 +1,5 @@
 using UnityEngine;
+using System.Collections.Generic;
 
 [RequireComponent(typeof(Rigidbody2D), typeof(Collider2D))]
 public abstract class Movement : Entity
@@ -102,6 +103,7 @@ public abstract class Movement : Entity
 		if (jCharges <= 0) return;
 		if (onGround || onWall == 0) {
 			jCharges--;
+			rb.velocity = new Vector2(rb.velocity.x, 0);
 			JumpDirection(Vector2.up, jumpSpeed);
 		}
 	}
@@ -109,12 +111,13 @@ public abstract class Movement : Entity
 		if (jCharges <= 0) return;
 		if (!onGround && onWall != 0) {
 			jCharges--;
+			rb.velocity = Vector2.zero;
 			if (onWall == 1) JumpDegrees(walljumpNormalDegrees, walljumpSpeed);
 			if (onWall == -1) JumpDegrees(180-walljumpNormalDegrees, walljumpSpeed);
 		}
 	}
 	void JumpDirection(Vector2 direction, float speed) {
-		rb.velocity = speed * direction;
+		rb.velocity += speed * direction.normalized;
 	}
 	void JumpDegrees(float deg, float speed) {
 		float rad = deg * Mathf.Deg2Rad;
@@ -157,65 +160,154 @@ public abstract class Movement : Entity
 
 
 	public float hookThrowSpeed = 10;
-	public float hookRetractTime = 1;
-	public float hookGravity = 1;
-	public float chainLength = 4;
+	public float hookRetractSpeed = 10;
+	public float hookRetractAcceleration = 5;
+	public float hookLaunchSpeed = 10;
+	public float hookGravity = 0.4f;
+	public float hookDrag = 0.5f;
+	public float maxChainLength = 4;
+	public float hookRestitution = 0.6f;
+	public float playerRestitution = 0.95f;
 	public GameObject hookPrefab;
-	Rigidbody2D hook;
-	Rigidbody2D CreateHook() {
-		if (hook != null) Destroy(hook.gameObject);
+	Rigidbody2D hook = null;
+	GameObject hookAttachedTo = null;
+	float chainLength = -1;
+	public void ThrowHook(Vector2 direction) {
+		DestroyHook();
 		Transform h = Instantiate(hookPrefab).transform;
-		h.parent = transform.Find("Grapple");
-		h.localPosition = Vector2.zero;
-		return h.GetComponent<Rigidbody2D>();
+		h.parent = GameObject.Find("Environment").transform.Find("Projectiles");;
+		h.localPosition = transform.Find("GunTip").position;
+		hook = h.GetComponent<Rigidbody2D>();
+		hook.velocity = hookThrowSpeed * direction;
+		hook.gravityScale = hookGravity;
+		hook.drag = hookDrag;
 	}
- 	public bool ThrowHook(Vector2 direction) { // =true when still throwing
- 		// Throw the hook
-		if (hook == null) {
-			hook = CreateHook();
-			hook.velocity = hookThrowSpeed * direction;
+	void DestroyHook() {
+		if (hook != null) Destroy(hook.gameObject);
+		hookAttachedTo = null;
+		chainLength = maxChainLength;
+		retracting = false;
+	}
+	public GameObject GetHookAttachedTo() {
+		return hookAttachedTo;
+	}
+	GameObject SearchForCollision(Rigidbody2D r, string layerName) {
+		// Detect collisions (without extra script)
+		List<Collider2D> results = new List<Collider2D>();
+		ContactFilter2D filter = new ContactFilter2D();
+		filter.SetLayerMask(LayerMask.GetMask(layerName));
+		r.OverlapCollider(filter, results);
+		// Find a suitable result
+		for (int i = 0; i < results.Count; i++) {
+			if (results[i].gameObject.layer == LayerMask.NameToLayer("Hookable"))
+				return results[i].gameObject;
+		}
+		return null;
+	}
+ 	public bool Hook() { // =true when hook still out
+ 		if (hook == null) return false;
+ 		Vector2 pToHook = hook.transform.position - transform.position;
+		float hookDist = pToHook.magnitude;
+		// Destroy when close enough to player
+		if (hookDist < 0.3f && retracting) {
+			DestroyHook();
+			return false;
+		}
+
+		// Search for a hookable
+ 		if (!retracting)
+ 			hookAttachedTo = SearchForCollision(hook, "Hookable");
+		//Debug.Log(hookAttachedTo);
+
+		// Clamp hook / player within chain range
+		bool outOfRange = (hookDist > 1.01f * chainLength);
+		// Clamp hook to player
+		if (hookAttachedTo == null) {
 			hook.gravityScale = hookGravity;
-		}
-		
-		// If attached to a hookable, dangle the player from hook
-		if (hook.GetComponent<Collider2D>().IsTouchingLayers(7)) {
-			hook.velocity = Vector2.zero;
-			float hookDist = Vector2.Distance(transform.position, hook.transform.position);
-			if (hookDist >= chainLength) {
-				// Pendulum - turn any non-tangent, outward velocity into some tangent
-				// reflect the outward velocity as if circle was a surface?
+			if (outOfRange) {
+				//Debug.Log("Clamping hook");
+				hook.transform.position = (Vector2)transform.position + chainLength * pToHook.normalized;
+				hook.velocity = ReflectVelocityCircle(hook, rb, chainLength, hookRestitution);
 			}
-			return false;
 		}
-		// If attached to an enemy, pull both sides together
-		// If forced out of chain range, return false
-		return true; // otherwise still throwing
-	}
-	public bool RetractHook(bool detach) { // =true when still retracting
-		if (hook == null) return false;
-		// Destroy when hook is fully retracted
-		Vector2 delta = hook.transform.position - transform.position;
-		if (delta.magnitude < 0.01f) {
-			Destroy(hook.gameObject);
-			return false;
-		}
-		// Accelerate hook towards me
-		else if (detach) {
-			return true;
-		}
-		// Accelerate towards hook
+		// Clamp player to hook, if attached to something
 		else {
-			return true;
+			hook.transform.position = hookAttachedTo.transform.position;
+			hook.gravityScale = 0;
+			hook.velocity = Vector2.zero;
+			if (outOfRange) {
+				//Debug.Log("Clamping player");
+				bool keepPosY = onGround;
+				Vector2 pos = (Vector2)hook.transform.position - chainLength * pToHook.normalized;
+				if (keepPosY) pos.y = transform.position.y;
+				transform.position = pos;
+				rb.velocity = ReflectVelocityCircle(rb, hook, chainLength, playerRestitution);
+			}
 		}
+		return true;
+	}
+	Vector2 ReflectVelocityCircle(Rigidbody2D rTarget, Rigidbody2D rBase, float distance, float restitution) {
+		// Keeps rTarget within a certain distance of rBase
+		// // by reflecting relative velocity when out of range
+		Vector2 normal = rBase.transform.position - rTarget.transform.position;
+		Vector2 relativeVelocity = rTarget.velocity - rBase.velocity;
+		relativeVelocity *= restitution;
+		float dot = Vector2.Dot(normal, relativeVelocity);
+		if (dot < 0) { // if travelling outward
+			float angle = Vector2.SignedAngle(Vector2.right, normal);
+			float vOffsetAngle = Vector2.SignedAngle(normal, -relativeVelocity);
+			angle -= vOffsetAngle;
+			angle *= Mathf.Deg2Rad;
+			return relativeVelocity.magnitude * new Vector2(Mathf.Cos(angle), Mathf.Sin(angle));
+		}
+		return rTarget.velocity;
+	}
+	bool retracting = false;
+	float rTimer = 0;
+	public void RetractHook(bool launch) {
+		if (hook == null) return;
+		if (!retracting) {
+			rTimer = 0;
+			if (launch) {
+				// Launch player up / towards hook
+				Jump();
+				Vector2 toHook = hookAttachedTo.transform.position - transform.position;
+				JumpDirection(toHook.normalized, hookLaunchSpeed);
+			}
+			hookAttachedTo = null;
+		}
+		retracting = true;
+
+		// Decrease chain length
+		rTimer += Time.fixedDeltaTime;
+		chainLength = maxChainLength - hookRetractSpeed*rTimer - 0.5f*hookRetractAcceleration*Mathf.Pow(rTimer, 2);
+		chainLength = Mathf.Clamp(chainLength, 0, maxChainLength);
 	}
 
 	// todo: wall + ground crawl for enemies
-	// // hook
 	// // driving
 
 
+	public virtual void Update() {
+		//Debug.Log(onGround);
+	}
 
 	public virtual void OnTriggerEnter2D(Collider2D info) {
+		GameObject other = info.gameObject;
+		if (other.tag == "Ground") {
+			onGround = true;
+			ResetCharges();
+		}
+		if (other.tag == "Wall") {
+			if (other.transform.position.x < transform.position.x)
+				onWall = 1;
+			else onWall = -1;
+			ResetCharges();
+		}
+	}
+	// sloppy bug fix with Stay(): We have multiple Ground triggers in scene.
+	// // when trigger leaves, sets onGround = false even though it's touching a different Ground
+	public virtual void OnTriggerStay2D(Collider2D info) {
 		GameObject other = info.gameObject;
 		if (other.tag == "Ground") {
 			onGround = true;
