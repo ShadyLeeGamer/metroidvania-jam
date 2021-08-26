@@ -13,6 +13,29 @@ public class RobotAnimations : MonoBehaviour
 	}
 	void Update() {
 		faceTimer += Time.deltaTime;
+		CheckTurnOver();
+	}
+
+
+	// If upside down, start turnover anim
+	public float turnOverTime = 0.3f;
+	float tOTimer = 0;
+	bool onceTurtled = false;
+	void CheckTurnOver() {
+		// If upside-down and onGround and not moving
+		bool turtled = rm.GetTurtle() && rm.rb.velocity.magnitude < 0.1f;
+		onceTurtled |= turtled;
+		if (!onceTurtled) return;
+		// Once turtled, wait for turnOverTime
+		if (tOTimer < turnOverTime) {
+			tOTimer += Time.deltaTime;
+		}
+		else {
+			// Reset rotation
+			tOTimer = 0;
+			onceTurtled = false;
+			transform.eulerAngles = Vector3.zero;
+		}
 	}
 
 
@@ -25,9 +48,9 @@ public class RobotAnimations : MonoBehaviour
 		faceTimer = 0;
 		// Rotate aroud y-axis (reflect)
 		if (right)
-			spritesParent.eulerAngles = Vector2.zero;
+			spritesParent.localEulerAngles = Vector2.zero;
 		else
-			spritesParent.eulerAngles = 180 * Vector2.up;
+			spritesParent.localEulerAngles = 180 * Vector2.up;
 	}
 	public void ResetFaceTimer() {
 		faceTimer = faceTime;

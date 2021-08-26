@@ -15,6 +15,15 @@ public class RobotMovement : Movement
 		anim = GetComponent<RobotAnimations>();
 	}
 
+
+	public bool canMoveInAir = false;
+	public bool canJump = false;
+	public bool canWallJump = false;
+	public bool canWallSlide = false;
+	public bool canDash = false;
+	public bool canSlam = false;
+	public bool canJetpack = false;
+
 	public float dashCooldown = 0.3f;
 	public float wallCooldown = 0.2f;
 	float dCooldown = 0;
@@ -31,14 +40,14 @@ public class RobotMovement : Movement
 		// Start ability - dash, slam, or jump
 		if (dCooldown > 0) dCooldown -= Time.fixedDeltaTime;
 		if (wCooldown > 0) wCooldown -= Time.fixedDeltaTime;
-		if (!dashing && (inputs.DoubleLeft || inputs.DoubleRight) && dCooldown <= 0) {
+		if (!dashing && (inputs.DoubleLeft || inputs.DoubleRight) && dCooldown <= 0 && canDash) {
 			dashing = true;
 			if (hooking) {
 				retractingHook = true;
 				RetractHook(false);
 			}
 		}
-		if (!slamming && inputs.DownGetDown) {
+		if (!slamming && inputs.DownGetDown && canSlam) {
 			slamming = true;
 			sliding = false;
 			if (hooking) {
@@ -61,32 +70,32 @@ public class RobotMovement : Movement
 			// Midair move horizontally
 			if (!sliding) {
 				if (wCooldown <= 0) {
-					SmoothMove(inputs.Horizontal);
+					if (GetOnGround() || canMoveInAir) SmoothMove(inputs.Horizontal);
 					if (!hooking || retractingHook) anim.FaceVelocity();
 				}
 			}
 			else {
-				int onWall = Wallslide();
+				int onWall = (canWallSlide)? Wallslide() : 0;
 				// Move off wall
 				if (onWall == 1) {
 					anim.FaceRight(true);
 					if (inputs.Horizontal > 0)
-						SmoothMove(inputs.Horizontal);
+						if (GetOnGround() || canMoveInAir) SmoothMove(inputs.Horizontal);
 				}
 				if (onWall == -1) {
 					anim.FaceRight(false);
 					if (inputs.Horizontal < 0)
-						SmoothMove(inputs.Horizontal);
+						if (GetOnGround() || canMoveInAir) SmoothMove(inputs.Horizontal);
 				}
 			}
 			// Jump / walljump
 			if (inputs.UpGetDown) {
 				if (!sliding) {
-					Jump();
+					if (canJump) Jump();
 				}
 				else {
 					wCooldown = wallCooldown;
-					Walljump();
+					if (canWallJump) Walljump();
 				}
 				if (hooking) {
 					retractingHook = true;
@@ -95,7 +104,7 @@ public class RobotMovement : Movement
 			}
 			// Jetpack
 			if (inputs.Jump) {
-				Jetpack();
+				if (canJetpack) Jetpack();
 				if (hooking) {
 					retractingHook = true;
 					RetractHook(false);

@@ -1,7 +1,7 @@
 using UnityEngine;
 using System.Collections.Generic;
 
-[RequireComponent(typeof(Rigidbody2D), typeof(Collider2D))]
+[RequireComponent(typeof(Rigidbody2D))]
 public abstract class Movement : Entity
 {
 
@@ -13,28 +13,53 @@ public abstract class Movement : Entity
 		rb = GetComponent<Rigidbody2D>();
 	}
 
+
+
 	public float horizontalSpeed = 5;
 	public float accelerateTime = 0.1f;
 	public float decelerateTime = 1f;
 	float hTimer = 0;
 	float oldDeltaVX = 0; // resets the timer after a direction change
+	//float oldDesiredVX = 0; // ensures full decelerations are performed
 	public int SmoothMove(float hInput) { // =0 when constant speed, =1 when accelerating, =-1 when decelerating
+		if (GetTurtle()) hInput = 0;
+		// Find the direction to move
+		/*Vector2 direction;
+		if (GetTurtle()) direction = Vector2.zero;
+		else if (onGround) direction = transform.right;
+		else direction = Vector2.right;
+		float dotDirection = Vector2.Dot(rb.velocity, direction);
+		bool accOrDec = (hInput * dotDirection > 0);*/
 		// Calculate the correct speed based on inputs
 		float desiredVX = horizontalSpeed * hInput;
 		float deltaVX = desiredVX - rb.velocity.x;
+		bool accOrDec = (deltaVX * hInput > 0);
+		
+		// This code fixes the partial decelerations, but breaks other stuff
+		// // Like when going down a hill, sometimes get stuck
+		/*if (accOrDec) Debug.Log("acc");
+		else Debug.Log("dec");
+		if (Mathf.Abs(oldDeltaVX) > 0.5f && accOrDec) {
+			desiredVX = oldDesiredVX;
+			deltaVX = desiredVX - rb.velocity.x;
+			accOrDec = (deltaVX * hInput > 0);
+		}
+		oldDesiredVX = desiredVX;*/
 		// Reset timer when new acceleration / deceleration begins
 		if (oldDeltaVX == 0) hTimer = 0;
 		if ((deltaVX > 0 && oldDeltaVX < 0) ||
 			(deltaVX < 0 && oldDeltaVX > 0)) {
 			hTimer = 0;
 		}
+		//Debug.Log(desiredVX + " " + deltaVX + " " + oldDeltaVX);
 		oldDeltaVX = deltaVX;
-		if (deltaVX == 0 || (deltaVX < 0.0001f && deltaVX > -0.0001f))
+		// if at correct velocity, tell.
+		if (deltaVX < 0.0001f && deltaVX > -0.0001f)
 			return 0;
 
 		// Linearly adjust player velocity when accelerating or decelerating
 		float newVX;
-		float maxTime = (deltaVX * hInput > 0)?
+		float maxTime = (accOrDec)?
 			accelerateTime : decelerateTime;
 		if (hTimer < maxTime) { // linearly adjust velocity
 			float deltaT = maxTime - hTimer;
@@ -54,6 +79,11 @@ public abstract class Movement : Entity
 		rb.velocity = new Vector2(newVX, rb.velocity.y);
 		if (maxTime == accelerateTime) return 1;
 		return -1;
+	}
+	public bool GetTurtle() {
+		bool turtled = Mathf.Cos(transform.eulerAngles.z * Mathf.Deg2Rad) < 0.1f;
+		turtled &= onGround;
+		return turtled;
 	}
 
 
@@ -292,14 +322,14 @@ public abstract class Movement : Entity
 		chainLength = Mathf.Clamp(chainLength, 0, maxChainLength);
 	}
 
-	// todo: wall + ground crawl for enemies
-	// // driving
 
 
 	public virtual void Update() {
 		//Debug.Log(onGround);
 	}
-
+	public bool GetOnGround() {
+		return onGround;
+	}
 	public virtual void OnTriggerEnter2D(Collider2D info) {
 		GameObject other = info.gameObject;
 		if (other.tag == "Ground") {
