@@ -1448,6 +1448,13 @@ MonoBehaviour:
   hookInsertion: 0.55
   playerRestitution: 1
   hookPrefab: {fileID: 3638657340002132965, guid: eb08fad5035c87040b0f0b331187f8b2, type: 3}
+  canMoveInAir: 0
+  canJump: 0
+  canWallJump: 0
+  canWallSlide: 0
+  canDash: 0
+  canSlam: 0
+  canJetpack: 0
   dashCooldown: 0.8
   wallCooldown: 0.1
   transferTime: 1
@@ -4582,7 +4589,7 @@ MonoBehaviour:
   - {x: -3, y: -6}
   - {x: -5, y: -6}
   - {x: -1, y: 0}
-  - {x: 1, y: 0}
+  - {x: 15, y: 0}
   - {x: -8, y: 5}
   debug: 1
   gizmoCamPos: 1
@@ -5236,6 +5243,13 @@ MonoBehaviour:
   hookInsertion: 0.55
   playerRestitution: 1
   hookPrefab: {fileID: 3638657340002132965, guid: eb08fad5035c87040b0f0b331187f8b2, type: 3}
+  canMoveInAir: 0
+  canJump: 0
+  canWallJump: 0
+  canWallSlide: 0
+  canDash: 0
+  canSlam: 0
+  canJetpack: 0
   dashCooldown: 0.8
   wallCooldown: 0.1
   transferTime: 1

@@ -154,7 +154,7 @@ public class RobotMovement : Movement
 
 		GameObject other = info.gameObject;
 		if (other.tag == "Wall") {
-			sliding = true;
+			if (canWallSlide) sliding = true;
 		}
 	}
 	public override void OnTriggerExit2D(Collider2D info) {
