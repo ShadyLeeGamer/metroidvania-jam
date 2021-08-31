@@ -33,6 +33,11 @@ public class RobotMovement : Movement
 	bool hooking = false;
 	bool retractingHook = false;
 	void FixedUpdate() {
+		if (GetTurtle()) {
+			SmoothMove(0);
+			return;
+		}
+
 		//Debug.Log(sliding + " " + dashing + " " + slamming + " " + Time.time + " " + GetJumpCharges() + " " + GetDashCharges());
 		inputs.CalculateKeyDown();
 		inputs.CalculateExtra();

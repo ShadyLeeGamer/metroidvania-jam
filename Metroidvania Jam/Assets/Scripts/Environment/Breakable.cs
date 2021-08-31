@@ -5,6 +5,10 @@ using UnityEngine;
 [RequireComponent(typeof(Collider2D), typeof(SpriteAnimations))]
 public class Breakable : MonoBehaviour
 {
+
+	// Note: Breakables should always be placed with the
+	// // Up direction facing where the player will be standing on break
+
 	Collider2D col;
 	SpriteAnimations anim;
 	void Start() {
@@ -13,7 +17,7 @@ public class Breakable : MonoBehaviour
 	}
 
 	public float shatterSpeed = 2f;
-	public string requiredTag = "";
+	public string requiredLayer = "";
 	public void Shatter() {
 		col.enabled = false;
 		anim.StartSingleDestroy();
@@ -21,17 +25,11 @@ public class Breakable : MonoBehaviour
 
     void OnCollisionEnter2D(Collision2D info) {
 		GameObject other = info.collider.gameObject;
-		Debug.Log(other);
-		if (requiredTag != "" && other.tag != requiredTag) return;
-		Rigidbody2D rb = other.GetComponent<Rigidbody2D>();
-		if (rb == null) {
-			rb = other.GetComponentInParent<Rigidbody2D>();
-			if (rb == null) return;
-		}
-		Debug.Log(rb.velocity.magnitude);
+		// Layer check
+		if (requiredLayer != "" && LayerMask.LayerToName(other.layer) != requiredLayer) return;
 		// Speed check
-		Vector2 pos = rb.transform.position - transform.position;
-		if (rb.velocity.magnitude * Vector2.Dot(pos, rb.velocity) >= shatterSpeed)
+		float inSpeed = info.relativeVelocity.magnitude * Mathf.Abs(Vector2.Dot(transform.up, info.relativeVelocity.normalized));
+		if (inSpeed >= shatterSpeed)
 			Shatter();
     }
 

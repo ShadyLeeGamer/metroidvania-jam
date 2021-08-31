@@ -233,7 +233,7 @@ public abstract class Movement : Entity
 		r.OverlapCollider(filter, results);
 		// Find a suitable result
 		for (int i = 0; i < results.Count; i++) {
-			if (results[i].gameObject.layer == LayerMask.NameToLayer("Hookable"))
+			if (results[i].gameObject.layer == LayerMask.NameToLayer(layerName))
 				return results[i].gameObject;
 		}
 		return null;
