@@ -9,8 +9,12 @@ public abstract class Movement : Entity
 	// // doesnt do anything by itself - must be called by PlayerMovement or EnemyMovement, etc
 
 	[HideInInspector] public Rigidbody2D rb;
+	Transform hooksParent;
+	[HideInInspector] public Transform hookGunTip;
 	public virtual void Start() {
 		rb = GetComponent<Rigidbody2D>();
+		hooksParent = GameObject.Find("Environment").transform.Find("Projectiles").Find("Hooks");
+		hookGunTip = transform.Find("Sprites").Find("RoboGuns").Find("Hook Gun").Find("GunTip");
 	}
 
 
@@ -205,8 +209,8 @@ public abstract class Movement : Entity
 	public void ThrowHook(Vector2 direction) {
 		DestroyHook();
 		Transform h = Instantiate(hookPrefab).transform;
-		h.parent = GameObject.Find("Environment").transform.Find("Projectiles").Find("Hooks");
-		h.localPosition = transform.Find("Sprites").Find("Gun").Find("GunTip").position;
+		h.parent = hooksParent;
+		h.localPosition = hookGunTip.position;
 		hook = h.GetComponent<Rigidbody2D>();
 		hook.velocity = hookThrowSpeed * direction;
 		hook.gravityScale = hookGravity;
@@ -234,7 +238,8 @@ public abstract class Movement : Entity
 		// Find a suitable result
 		for (int i = 0; i < results.Count; i++) {
 			if (results[i].gameObject.layer == LayerMask.NameToLayer(layerName))
-				return results[i].gameObject;
+				if (results[i].transform.root != transform.root)
+					return results[i].gameObject;
 		}
 		return null;
 	}

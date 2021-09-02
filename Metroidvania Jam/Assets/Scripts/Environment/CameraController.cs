@@ -87,26 +87,26 @@ public class CameraController : MonoBehaviour
 	// X    X  [X X] X X
 	// X             X X
 	// X
-	int clampIndex = -1;
 	Vector2 ClampWithinBorder(Vector2 pos) {
 		if (borderPoints.Count < 2) {
 			Debug.LogError("Insufficient border points!");
 			return pos;
 		}
+		Vector2 minDist = Vector2.zero;
 		Vector2 prevBP = borderPoints[0];
 		for (int i = 0; i < borderPoints.Count-1; i++) {
 			Vector2 BP = borderPoints[i+1];
 			Vector2 clamped = ClampSingleRect(pos, prevBP, BP);
-			// pos is in this region
-			if (clamped == pos) {
-				clampIndex = i;
-				return pos;
-			}
+			// pos is in this region - no need to clamp
+			if (clamped == pos) return pos;
+			float distance = Vector2.Distance(clamped, pos);
+			if (distance < minDist.y || i == 0)
+				minDist = new Vector2(i, distance);
 			prevBP = BP;
 		}
-		// If not inside any regions, clamp to the prev region.
-		if (clampIndex == -1) return pos;
-		return ClampSingleRect(pos, borderPoints[clampIndex], borderPoints[clampIndex+1]);
+		// If not inside any regions, clamp to the closest region.
+		int index = Mathf.RoundToInt(minDist.x);
+		return ClampSingleRect(pos, borderPoints[index], borderPoints[index+1]);
 	}
 	Vector2 ClampSingleRect(Vector2 pos, Vector2 v1, Vector2 v2) {
 		if (v1.x <= v2.x)

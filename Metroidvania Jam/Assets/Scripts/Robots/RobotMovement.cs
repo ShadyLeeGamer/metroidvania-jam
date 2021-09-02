@@ -2,7 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-[RequireComponent(typeof(Inputs), typeof(RobotAnimations))]
+[RequireComponent(typeof(Inputs), typeof(RobotAnimations), typeof(RobotShooting))]
 public class RobotMovement : Movement
 {
 
@@ -42,6 +42,10 @@ public class RobotMovement : Movement
 		inputs.CalculateKeyDown();
 		inputs.CalculateExtra();
 
+		// When using the GetDown feature, must call from here
+		if (inputs.SwapGetDown || inputs.Mouse2GetDown)
+			GetComponent<RobotShooting>().CycleGun();
+
 		// Start ability - dash, slam, or jump
 		if (dCooldown > 0) dCooldown -= Time.fixedDeltaTime;
 		if (wCooldown > 0) wCooldown -= Time.fixedDeltaTime;
@@ -58,15 +62,6 @@ public class RobotMovement : Movement
 			if (hooking) {
 				retractingHook = true;
 				RetractHook(false);
-			}
-		}
-		if (inputs.Mouse1GetDown) {
-			if (!hooking) {
-				hooking = true;
-				ThrowHook((inputs.Cursor - (Vector2)transform.position).normalized);
-			}
-			else {
-				retractingHook = true;
 			}
 		}
 
@@ -120,14 +115,20 @@ public class RobotMovement : Movement
 			if (hooking) {
 				if (retractingHook) {
 					GameObject attachedTo = GetHookAttachedTo();
-					if (attachedTo != null && attachedTo.name == "Robot Outlet") {
+					// prevent launch from self-insertion - blocked by SearchForCollision in Movement
+					if (attachedTo != null && attachedTo.transform.root == transform.root)
+						attachedTo = null;
+					if (attachedTo != null) {
 						// Transfer to new robot if attachedTo another robot
-						Transfer();
+						if (attachedTo.name == "Robot Outlet")
+							Transfer();
+						// Charge up from active outlets
+						//if (attachedTo.name == "Activated Outlet")
+						//	anim.ChargeEnergy();
 					}
-					else RetractHook(attachedTo != null);
+					RetractHook(attachedTo != null);
 				}
 				hooking = Hook();
-				anim.FaceDirection(GetHook().transform.position - transform.position);
 				anim.UpdateChain("Parabola", true, true);
 				if (!hooking) {
 					anim.DestroyChain();
@@ -168,6 +169,23 @@ public class RobotMovement : Movement
 		GameObject other = info.gameObject;
 		if (other.tag == "Wall") {
 			sliding = false;
+		}
+	}
+
+	// Called by RobotShooting
+	// hook retracts when unpressed shoot keys, unless attached
+	public void ShootHook() {
+		float angle = anim.gun.localEulerAngles.z * Mathf.Deg2Rad;
+		Vector2 direction = new Vector2(Mathf.Cos(angle), Mathf.Sin(angle));
+		if (anim.spritesParent.localEulerAngles.y == 180)
+			direction.x = -direction.x;
+		
+		if (!hooking) {
+			hooking = true;
+			ThrowHook(direction);
+		}
+		else {
+			retractingHook = true;
 		}
 	}
 

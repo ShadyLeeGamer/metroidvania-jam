@@ -30,8 +30,8 @@ public class Inputs : MonoBehaviour
 	// KeyDown inputs
 	public bool UpGetDown = false;
 	public bool DownGetDown = false;
-	public bool LeftGetDown = false; // for UI nav, double-tap
-	public bool RightGetDown = false; // for UI nav, double-tap
+	public bool LeftGetDown = false; // double-tap
+	public bool RightGetDown = false; // double-tap
 	public bool JumpGetDown = false;
 	public bool SwapGetDown = false;
 	public bool Mouse1GetDown = false;

@@ -4,17 +4,48 @@ using UnityEngine;
 
 public class RobotAnimations : MonoBehaviour
 {
-    Transform spritesParent;
-    RobotMovement rm;
+    [HideInInspector] public Transform spritesParent;
+    [HideInInspector] public Transform gun;
+    [HideInInspector] public RobotMovement rm;
 	void Start() {
 		rm = GetComponent<RobotMovement>();
 		spritesParent = transform.Find("Sprites");
+        gun = spritesParent.Find("RoboGuns");
 		chainParent = GameObject.Find("Environment").transform.Find("Projectiles").Find("Hooks");
 	}
 	void Update() {
 		faceTimer += Time.deltaTime;
 		CheckTurnOver();
 	}
+
+
+    void PointGunAngle(float angle) {
+        gun.localEulerAngles = new Vector3(gun.localEulerAngles.x, gun.localEulerAngles.y, angle);
+    }
+    public void PointGunDirection(Vector2 direction) {
+        if (direction == Vector2.zero) {
+            Debug.LogError("gun direction is invalid");
+            return;
+        }
+        float angle = Vector2.SignedAngle(Vector2.right, direction);
+        ResetFaceTimer();
+        // gun trigger always facing down
+        if (angle < -90) {
+            FaceRight(false);
+            angle = -180 - angle;
+        } 
+        else if (angle > 90) {
+            FaceRight(false);
+            angle = 180 - angle;
+        }
+        else if (angle != 90 && angle != -90) {
+            FaceRight(true);
+        }
+        PointGunAngle(angle);
+    }
+    void PointGunTowards(Transform t) {
+        PointGunDirection(t.position - transform.position);
+    }
 
 
 	// If upside down, start turnover anim
@@ -96,7 +127,7 @@ public class RobotAnimations : MonoBehaviour
     float numLinksMultiplier = 3; // smaller = better performance but less sensitive results
     Transform chainParent;
     public void UpdateChain(string curveName, bool addTrochoid, bool lerp) {
-    	Vector2 pos2 = transform.Find("Sprites").Find("Gun").Find("GunTip").position;
+    	Vector2 pos2 = rm.hookGunTip.position;
     	Vector2 pos1 = rm.GetHook().transform.position;
     	if (pos1 == pos2) return;
     	if (rm.GetHookAttachedTo() == null) HookFaceDirection(pos1 - pos2);
@@ -191,6 +222,7 @@ public class RobotAnimations : MonoBehaviour
     }
     List<Vector2> CreateHangingParabola(int n, Vector2 pos1, Vector2 pos2, float scale) {
     	if (scale == 0) scale = 0.001f;
+        if (Mathf.Abs(pos2.x - pos1.x) < 0.001f) pos2.x += 0.001f;
     	List<Vector2> points = new List<Vector2>();
     	float slope = (pos2.y - pos1.y) / (pos2.x - pos1.x);
     	float cx = 0.5f - slope/2/scale; // derived formula
