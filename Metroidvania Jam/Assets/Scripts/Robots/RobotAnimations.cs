@@ -4,6 +4,9 @@ using UnityEngine;
 
 public class RobotAnimations : MonoBehaviour
 {
+
+    
+
     [HideInInspector] public Transform spritesParent;
     [HideInInspector] public Transform gun;
     [HideInInspector] public RobotMovement rm;
@@ -17,6 +20,116 @@ public class RobotAnimations : MonoBehaviour
 		faceTimer += Time.deltaTime;
 		CheckTurnOver();
 	}
+
+
+
+// extra: SpriteAnim lights or add actual lights
+    public float Energy = 0.5f; // 0-1
+    public float chargeTime = 15; // seconds until full charge
+    public GameObject chargeLightPrefab;
+    List<Transform> chargeLights = new List<Transform>();
+    public float chargeLightCreateTime = 5f;
+    float chcTimer = 0;
+    public float chargeLightTravelTime = 5f;
+    List<float> chargeLightTimers = new List<float>();
+    void SpawnChargeLight() {
+        Transform outlet = rm.GetHookAttachedTo().transform;
+        if (outlet == null) {
+            Debug.LogError("Cant spawn charge particle at null outlet.");
+            return;
+        }
+        Transform cl = Instantiate(chargeLightPrefab, chainParent.parent).transform;
+        cl.position = PosAlongChain(1);
+        chargeLights.Add(cl);
+        chargeLightTimers.Add(0);
+    }
+    public void Charge() {
+        if (rm.GetHook() == null) return;
+        if (Energy < 0) Energy = 0;
+        if (Energy < 1) {
+            Energy += Time.fixedDeltaTime / chargeTime;
+            Energy = Mathf.Clamp(Energy, 0, 1);
+            // Spawn purple light
+            if (chcTimer < chargeLightCreateTime)
+                chcTimer += Time.fixedDeltaTime;
+            else {
+                chcTimer = 0;
+                SpawnChargeLight();
+                Debug.Log("spawned");
+            }
+        }
+        // Move purple lights along chain
+        for (int i = 0; i < chargeLights.Count; i++) {
+            if (i == 0) Debug.Log(chargeLightTimers[i]);
+            chargeLightTimers[i] += Time.fixedDeltaTime;
+            if (chargeLightTimers[i] >= chargeLightTravelTime) {
+                DestroyChargeIndex(i);
+                i--;
+                continue;
+            }
+            chargeLights[i].position = PosAlongChain(1 - chargeLightTimers[i] / chargeLightTravelTime);
+        }
+    }
+    public void DestroyCharges() {
+        for (int i = 0; i < chargeLights.Count; i++)
+            DestroyChargeIndex(i);
+    }
+    void DestroyChargeIndex(int i) {
+        // todo: chargeLights[i].GetComponent<SpriteAnimations>().SingleDestroy();
+        Destroy(chargeLights[i].gameObject);
+        chargeLights.RemoveAt(i);
+        chargeLightTimers.RemoveAt(i);
+    }
+
+// bug: Transfer / Energy. doesnt move along wire at constant speed: short wire = slow
+    public float transferTime = 1;
+    float transferTimer = -1;
+    GameObject transferLight;
+    public GameObject transferLightPrefab;
+    public bool Transfer() {
+        if (transferTimer < 0) {
+            transferTimer = 0;
+            // Create blue light
+            transferLight = Instantiate(transferLightPrefab, chainParent.parent);
+            transferLight.transform.position = gun.Find("GunTip").position;
+            gameObject.name = robotName;
+            transferLight.name = "Player";
+            Camera.main.GetComponent<CameraController>().FindPlayer();
+            // Cannot move during transfer
+            GameObject robot = rm.GetHookAttachedTo().transform.parent.parent.gameObject;
+            GetComponent<PlayerInputs>().enabled = false;
+            if (robot.GetComponent<RobotAnimations>().robotName == "Enemy")
+                robot.GetComponent<EnemyRobotInputs>().enabled = false;
+            rm.rb.constraints = RigidbodyConstraints2D.FreezeAll;
+            robot.GetComponent<Rigidbody2D>().constraints = RigidbodyConstraints2D.FreezeAll;
+        }
+        else if (transferTimer < transferTime) {
+            transferTimer += Time.fixedDeltaTime;
+            // Move blue light along hook chain
+            transferLight.transform.position = PosAlongChain(transferTimer / transferTime);
+        }
+        else {
+            // Transfer to robot
+            Destroy(transferLight);
+            GameObject robot = rm.GetHookAttachedTo().transform.parent.parent.gameObject;
+            robot.name = "Player";
+            Camera.main.GetComponent<CameraController>().FindPlayer();
+            Destroy(GetComponent<PlayerInputs>());
+            robot.AddComponent<PlayerInputs>();
+            rm.rb.constraints = RigidbodyConstraints2D.FreezeRotation;
+            robot.GetComponent<Rigidbody2D>().constraints = RigidbodyConstraints2D.FreezeRotation;
+            // Enable / disable to preserve settings
+            if (robotName == "Enemy")
+                GetComponent<EnemyRobotInputs>().enabled = true;
+            if (robot.GetComponent<RobotAnimations>().robotName == "Enemy")
+                robot.GetComponent<EnemyRobotInputs>().enabled = false;
+            // Prevent infinite transfer
+            if (rm.GetHook() != null) rm.RetractHook(false);
+            return false;
+        }
+        return true;
+    }
+    public string robotName = "Robot";
 
 
     void PointGunAngle(float angle) {
@@ -70,7 +183,6 @@ public class RobotAnimations : MonoBehaviour
 	}
 
 
-	// todo: smoothly move gun 360 when turning
 	// Reflect sprites to change look direction
 	public float faceTime = 0.3f;
 	float faceTimer = 0;
@@ -171,7 +283,6 @@ public class RobotAnimations : MonoBehaviour
     		FitPointsToCurve(points, curve);
 		}
 		else points = curve;
-		//RemoveDuplicatePoints(points); // hopefully not needed
 		EvenlySpacePoints(points, distBetweenLinks);
     	
     	// Spawn new links at pos1 when extending length
@@ -206,10 +317,12 @@ public class RobotAnimations : MonoBehaviour
     public Vector2 PosAlongChain(float progress) {
     	progress = 1-progress;
     	int index = Mathf.RoundToInt(Mathf.Clamp(progress * (chainLinks.Count-1), 0, chainLinks.Count-2));
+        if (chainLinks.Count == 1) return chainLinks[0].position;
+        if (chainLinks.Count == 0) return (rm.GetHook().position + (Vector2)transform.position) / 2;
     	float indexProgress = (float)index / (chainLinks.Count-1);
     	float nextIndexProgress = (float)(index+1) / (chainLinks.Count-1);
     	float progressBetween = (progress - indexProgress) / (nextIndexProgress - indexProgress);
-    	return Vector2.Lerp(chainLinks[index].localPosition, chainLinks[index+1].localPosition, progressBetween);
+    	return Vector2.Lerp(chainLinks[index].position, chainLinks[index+1].position, progressBetween);
     }
     List<Vector2> CreateLine(int n, Vector2 pos1, Vector2 pos2) {
     	List<Vector2> points = new List<Vector2>();

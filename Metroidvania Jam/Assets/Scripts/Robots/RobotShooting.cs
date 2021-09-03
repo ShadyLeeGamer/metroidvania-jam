@@ -82,7 +82,7 @@ public class RobotShooting : MonoBehaviour
     	pooledInputs[3] |= inputs.ShootDown;
     }
     float shootCooldown = 0;
-    // todo: fix facing, add charging anim, move transfer anim, mouse, default point direction
+    // todo: fix facing, default point direction is mouse
     void Update() {
     	//Debug.Log(pooledInputs[0] + " " + pooledInputs[1] + " " + pooledInputs[2] + " " + pooledInputs[3]);
     	PoolInputs();
@@ -119,7 +119,7 @@ public class RobotShooting : MonoBehaviour
     	}
     	if (direction != Vector2.zero)
     		anim.PointGunDirection(direction);
-    	Debug.Log(direction);
+    	//Debug.Log(direction);
 
     	// Shoot gun / hook
     	if (currentGunIndex == -1) {
@@ -169,8 +169,13 @@ public class RobotShooting : MonoBehaviour
     }
     void Fire() {
     	if (currentGunIndex >= 0 && currentGunIndex < unlockedGuns.Count) {
-    		unlockedGuns[currentGunIndex].Shoot(projectileParent);
-    		shootCooldown = unlockedGuns[currentGunIndex].cooldown;
+    		RoboGun g = unlockedGuns[currentGunIndex];
+    		if (anim.Energy > g.energyCost) {
+    			g.Shoot(projectileParent);
+    			shootCooldown = g.cooldown;
+    			anim.Energy -= g.energyCost;
+    		}
+    		
     	}
     	else {
     		anim.rm.ShootHook();
@@ -189,6 +194,7 @@ public class RoboGun {
 	public float angleVariation = 0;
 	public float addRoboVelocity = 1;
 	public float recoilVelocityScale = 0.2f;
+	public float energyCost = 0.05f;
 
 	public void Shoot(Transform bulletParent) {
 		Transform tip = gunObject.Find("GunTip");

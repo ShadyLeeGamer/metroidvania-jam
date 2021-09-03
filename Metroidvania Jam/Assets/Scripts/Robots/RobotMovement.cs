@@ -113,18 +113,23 @@ public class RobotMovement : Movement
 
 			// Hook
 			if (hooking) {
+				GameObject attachedTo = GetHookAttachedTo();
+				// prevent launch from self-insertion - blocked by SearchForCollision in Movement
+				if (attachedTo != null && attachedTo.transform.root == transform.root)
+					attachedTo = null;
+				if (attachedTo != null) {
+					// Charge up from active outlets
+					if (attachedTo.name == "Activated Outlet") {
+						if (attachedTo.GetComponent<Activated>().active)
+							anim.Charge();
+					}
+				}
 				if (retractingHook) {
-					GameObject attachedTo = GetHookAttachedTo();
-					// prevent launch from self-insertion - blocked by SearchForCollision in Movement
-					if (attachedTo != null && attachedTo.transform.root == transform.root)
-						attachedTo = null;
+					anim.DestroyCharges();
 					if (attachedTo != null) {
 						// Transfer to new robot if attachedTo another robot
 						if (attachedTo.name == "Robot Outlet")
-							Transfer();
-						// Charge up from active outlets
-						//if (attachedTo.name == "Activated Outlet")
-						//	anim.ChargeEnergy();
+							anim.Transfer();
 					}
 					RetractHook(attachedTo != null);
 				}
@@ -132,6 +137,7 @@ public class RobotMovement : Movement
 				anim.UpdateChain("Parabola", true, true);
 				if (!hooking) {
 					anim.DestroyChain();
+					anim.DestroyCharges();
 					retractingHook = false;
 				}
 			}
@@ -191,55 +197,6 @@ public class RobotMovement : Movement
 
 
 
-// todo: implement transfer above, such that you cannot move / cancel it / release hook when transferring
-	public float transferTime = 1;
-	float transferTimer = -1;
-	GameObject blueLight;
-	public GameObject blueLightPrefab;
-	bool Transfer() {
-		if (transferTimer < 0) {
-			transferTimer = 0;
-			// Create blue light
-			Transform parent = GameObject.Find("Environment").transform.Find("Projectiles");
-			blueLight = Instantiate(blueLightPrefab, parent);
-			blueLight.transform.position = transform.Find("Sprites").Find("Gun").Find("GunTip").position;
-			gameObject.name = robotName;
-			blueLight.name = "Player";
-			Camera.main.GetComponent<CameraController>().FindPlayer();
-			// Cannot move during transfer
-			GameObject robot = GetHookAttachedTo().transform.parent.parent.gameObject;
-			GetComponent<PlayerInputs>().enabled = false;
-			if (robot.GetComponent<RobotMovement>().robotName == "Enemy")
-				robot.GetComponent<EnemyRobotInputs>().enabled = false;
-			rb.constraints = RigidbodyConstraints2D.FreezeAll;
-			robot.GetComponent<Rigidbody2D>().constraints = RigidbodyConstraints2D.FreezeAll;
-		}
-		else if (transferTimer < transferTime) {
-			transferTimer += Time.fixedDeltaTime;
-			// Move blue light along hook chain
-			blueLight.transform.position = anim.PosAlongChain(transferTimer / transferTime);
-		}
-		else {
-			// Transfer to robot
-			Destroy(blueLight);
-			GameObject robot = GetHookAttachedTo().transform.parent.parent.gameObject;
-			robot.name = "Player";
-			Camera.main.GetComponent<CameraController>().FindPlayer();
-			Destroy(GetComponent<PlayerInputs>());
-			robot.AddComponent<PlayerInputs>();
-			rb.constraints = RigidbodyConstraints2D.FreezeRotation;
-			robot.GetComponent<Rigidbody2D>().constraints = RigidbodyConstraints2D.FreezeRotation;
-			// Enable / disable to preserve settings
-			if (robotName == "Enemy")
-				GetComponent<EnemyRobotInputs>().enabled = true;
-			if (robot.GetComponent<RobotMovement>().robotName == "Enemy")
-				robot.GetComponent<EnemyRobotInputs>().enabled = false;
-			// Prevent infinite transfer
-			if (hooking) RetractHook(false);
-			return false;
-		}
-		return true;
-	}
-	public string robotName = "Robot";
+
 
 }
