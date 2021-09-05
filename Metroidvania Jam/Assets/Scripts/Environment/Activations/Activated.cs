@@ -7,9 +7,10 @@ public class Activated : MonoBehaviour
 
 	public List<Activator> activators;
 	bool AllActive() {
-		bool a = true;
+		bool a = false;
 		for (int i = 0; i < activators.Count; i++)
-			a &= activators[i].active;
+			if (activators[i] != null)
+				a |= activators[i].active;
 		return a;
 	}
 
