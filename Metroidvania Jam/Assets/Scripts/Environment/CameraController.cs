@@ -8,6 +8,7 @@ public class CameraController : MonoBehaviour
 	public Vector3 offset = new Vector3(0, 0, -10);
     void Start() {
         FindPlayer();
+        ResetDiscovered();
         transform.position = offset;
     }
     Transform player;
@@ -87,6 +88,12 @@ public class CameraController : MonoBehaviour
 	// X    X  [X X] X X
 	// X             X X
 	// X
+	public List<bool> discovered;
+	void ResetDiscovered() {
+		discovered.Clear();
+		for (int i = 0; i < borderPoints.Count-1; i++)
+			discovered.Add(false);
+	}
 	Vector2 ClampWithinBorder(Vector2 pos) {
 		if (borderPoints.Count < 2) {
 			Debug.LogError("Insufficient border points!");
@@ -97,10 +104,14 @@ public class CameraController : MonoBehaviour
 		for (int i = 0; i < borderPoints.Count-1; i++) {
 			Vector2 BP = borderPoints[i+1];
 			Vector2 clamped = ClampSingleRect(pos, prevBP, BP);
-			// pos is in this region - no need to clamp
-			if (clamped == pos) return pos;
 			float distance = Vector2.Distance(clamped, pos);
-			if (distance < minDist.y || i == 0)
+			// pos is in this region - no need to clamp
+			if (distance < 0.001f) {
+				discovered[i] = true;
+				return pos;
+			}
+
+			if (discovered[i] && (distance < minDist.y || i == 0))
 				minDist = new Vector2(i, distance);
 			prevBP = BP;
 		}

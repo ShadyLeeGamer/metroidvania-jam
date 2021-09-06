@@ -35,6 +35,10 @@ public class SpriteAnimations : MonoBehaviour
 			finished = NextFrame();
 			if (finished && doingSingle) {
 				swapTimer = -1;
+				if (disableCollider) {
+					Collider2D col = GetComponent<Collider2D>();
+					if (col != null) col.enabled = false;
+				}
 				if (destroy) Destroy(gameObject);
 			}
 		}
@@ -56,6 +60,7 @@ public class SpriteAnimations : MonoBehaviour
 
 	bool doingSingle = false;
 	bool destroy = false;
+	bool disableCollider = false;
 	[HideInInspector] public bool finished = false; // used to tell other scripts when a single loop has finished
 	public void StartLoop() {
 		Reset();
@@ -70,11 +75,17 @@ public class SpriteAnimations : MonoBehaviour
 		doingSingle = true;
 		destroy = true;
 	}
+	public void StartSingleCollider() {
+		Reset();
+		doingSingle = true;
+		disableCollider = true;
+	}
 
 	
 	public void Reset() {
 		doingSingle = false;
 		destroy = false;
+		disableCollider = false;
 		swapTimer = 0;
 		renderTimer = 0;
 		finished = false;

@@ -20,7 +20,7 @@ public class Breakable : MonoBehaviour
 	public string requiredLayer = "";
 	public void Shatter() {
 		col.enabled = false;
-		anim.StartSingleDestroy();
+		anim.StartSingleCollider();
 	}
 
     void OnCollisionEnter2D(Collision2D info) {
