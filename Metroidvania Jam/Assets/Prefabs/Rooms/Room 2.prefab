@@ -101,6 +101,18 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 5893643780980183178}
     m_Modifications:
+    - target: {fileID: 2286685761990824594, guid: e9f389a1d23edd54184e94924d148314, type: 3}
+      propertyPath: m_Layer
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2941162330960920831, guid: e9f389a1d23edd54184e94924d148314, type: 3}
+      propertyPath: m_Layer
+      value: 12
+      objectReference: {fileID: 0}
+    - target: {fileID: 3821901501114155829, guid: e9f389a1d23edd54184e94924d148314, type: 3}
+      propertyPath: m_Layer
+      value: 12
+      objectReference: {fileID: 0}
     - target: {fileID: 4529620207450152822, guid: e9f389a1d23edd54184e94924d148314, type: 3}
       propertyPath: m_Name
       value: Room 2-2
@@ -148,6 +160,18 @@ PrefabInstance:
     - target: {fileID: 4529620207450152823, guid: e9f389a1d23edd54184e94924d148314, type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4853345591967571567, guid: e9f389a1d23edd54184e94924d148314, type: 3}
+      propertyPath: m_Layer
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8163961105445044932, guid: e9f389a1d23edd54184e94924d148314, type: 3}
+      propertyPath: m_Layer
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8767759943341147837, guid: e9f389a1d23edd54184e94924d148314, type: 3}
+      propertyPath: m_Layer
+      value: 12
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: e9f389a1d23edd54184e94924d148314, type: 3}
