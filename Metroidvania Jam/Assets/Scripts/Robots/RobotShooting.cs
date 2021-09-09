@@ -2,7 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class RobotShooting : MonoBehaviour
+public class RobotShooting : RobotGun
 {
 	RobotAnimations anim;
 	Inputs inputs;
@@ -16,6 +16,14 @@ public class RobotShooting : MonoBehaviour
     public Transform hookGun; // in scene
     public float hookCooldown = 0.3f;
     public List<RoboGun> unlockedGuns;
+    public void AddGun(RoboGun g) {
+    	if (unlockedGuns.Contains(g)) return;
+    	// gunObject is initially a prefab
+    	GameObject gunObject = Instantiate(g.gunObject.gameObject, anim.gun);
+    	gunObject.SetActive(false);
+    	g.gunObject = gunObject.transform;
+    	unlockedGuns.Add(g);
+    }
     int currentGunIndex = -1; // 0,1,etc for index in unlockedGuns, otherwise hook
     void DisplayGun(bool active) {
     	if (currentGunIndex == -1)
@@ -170,7 +178,8 @@ public class RobotShooting : MonoBehaviour
     void Fire() {
     	if (currentGunIndex >= 0 && currentGunIndex < unlockedGuns.Count) {
     		RoboGun g = unlockedGuns[currentGunIndex];
-    		if (anim.Energy > g.energyCost) {
+    		if (anim.Energy >= g.energyCost) {
+    			Debug.Log("shot");
     			g.Shoot(projectileParent);
     			shootCooldown = g.cooldown;
     			anim.Energy -= g.energyCost;
@@ -182,42 +191,6 @@ public class RobotShooting : MonoBehaviour
     		shootCooldown = hookCooldown;
     	}
     }
-
-
-[System.Serializable]
-public class RoboGun {
-	public Transform gunObject; // in scene, not prefab
-	public GameObject bulletPrefab;
-	public float bulletSpeed = 1; // set grav + drag in bullet prefab
-	public float cooldown = 0.2f;
-	public float bulletsPerShot = 1;
-	public float angleVariation = 0;
-	public float addRoboVelocity = 1;
-	public float recoilVelocityScale = 0.2f;
-	public float energyCost = 0.05f;
-
-	public void Shoot(Transform bulletParent) {
-		Transform tip = gunObject.Find("GunTip");
-		Vector2 shootDirection = (tip.position - gunObject.position).normalized;
-		Rigidbody2D robot = gunObject.root.GetComponent<Rigidbody2D>();
-
-		for (int i = 0; i < bulletsPerShot; i++) {
-			GameObject bullet = Instantiate(bulletPrefab, tip.position, Quaternion.identity, bulletParent);
-			Vector2 direction = shootDirection;
-			if (angleVariation != 0) {
-				float offsetAngle = (2*Random.value-1) * angleVariation;
-				float angle = Vector2.SignedAngle(Vector2.right, direction);
-				angle += offsetAngle;
-				angle *= Mathf.Deg2Rad;
-				direction = new Vector2(Mathf.Cos(angle), Mathf.Sin(angle));
-			}
-			Rigidbody2D brb = bullet.GetComponent<Rigidbody2D>();
-        	brb.velocity = addRoboVelocity * robot.velocity;
-        	brb.velocity += bulletSpeed * direction;
-        	robot.velocity -= recoilVelocityScale * brb.velocity;
-		}
-	}
-}
 
 
 }

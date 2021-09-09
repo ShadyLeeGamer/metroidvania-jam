@@ -9,9 +9,10 @@ public class SpriteAnimations : MonoBehaviour
 	SpriteRenderer sr;
 	void Start() {
 		sr = GetComponent<SpriteRenderer>();
-		// Debug effects
-		//StartLoop();
+
+		if (loopOnStart) StartLoop();
 	}
+	public bool loopOnStart = false;
 
 	public List<Sprite> animationFrames;
 	int index = 0;
