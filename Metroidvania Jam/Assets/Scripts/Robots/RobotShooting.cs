@@ -19,10 +19,16 @@ public class RobotShooting : RobotGun
     public void AddGun(RoboGun g) {
     	if (unlockedGuns.Contains(g)) return;
     	// gunObject is initially a prefab
-    	GameObject gunObject = Instantiate(g.gunObject.gameObject, anim.gun);
+    	GameObject gunObject = Instantiate(g.gunObject.gameObject, anim.guns);
     	gunObject.SetActive(false);
     	g.gunObject = gunObject.transform;
     	unlockedGuns.Add(g);
+    }
+    public Transform GetGun() {
+    	if (currentGunIndex == -1)
+    		return hookGun;
+    	else
+    		return unlockedGuns[currentGunIndex].gunObject;
     }
     int currentGunIndex = -1; // 0,1,etc for index in unlockedGuns, otherwise hook
     void DisplayGun(bool active) {
@@ -114,7 +120,7 @@ public class RobotShooting : RobotGun
     void CoordinateShooting() {
     	// Calculate shoot direction
     	Vector2 direction = CalculateDirection(pooledInputs[0], pooledInputs[1], pooledInputs[2], pooledInputs[3]);
-    	if (direction == Vector2.zero) {
+    	if (direction == Vector2.zero && GetComponent<PlayerInputs>() != null) {
     		// Mouse support
     		if ((Vector2)Input.mousePosition != oldCursor || inputs.Mouse1) {
     			direction = (inputs.Cursor - (Vector2)transform.position).normalized;

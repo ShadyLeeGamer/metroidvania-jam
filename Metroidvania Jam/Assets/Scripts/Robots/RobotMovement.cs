@@ -126,12 +126,11 @@ public class RobotMovement : Movement
 				}
 				if (retractingHook) {
 					anim.DestroyCharges();
-					if (attachedTo != null) {
-						// Transfer to new robot if attachedTo another robot
-						if (attachedTo.name == "Robot Outlet")
-							anim.Transfer();
+					// Transfer to new robot if attachedTo another robot
+					if (attachedTo != null && attachedTo.name == "Robot Outlet") {
+						anim.Transfer();
 					}
-					RetractHook(attachedTo != null);
+					else RetractHook(attachedTo != null);
 				}
 				hooking = Hook();
 				anim.UpdateChain("Parabola", true, true);
@@ -181,12 +180,11 @@ public class RobotMovement : Movement
 	// Called by RobotShooting
 	// hook retracts when unpressed shoot keys, unless attached
 	public void ShootHook() {
-		float angle = anim.gun.localEulerAngles.z * Mathf.Deg2Rad;
-		Vector2 direction = new Vector2(Mathf.Cos(angle), Mathf.Sin(angle));
-		if (anim.spritesParent.localEulerAngles.y == 180)
-			direction.x = -direction.x;
-		
 		if (!hooking) {
+			float angle = anim.guns.localEulerAngles.z * Mathf.Deg2Rad;
+			Vector2 direction = new Vector2(Mathf.Cos(angle), Mathf.Sin(angle));
+			if (anim.spritesParent.localEulerAngles.y == 180)
+				direction.x = -direction.x;
 			hooking = true;
 			ThrowHook(direction);
 		}

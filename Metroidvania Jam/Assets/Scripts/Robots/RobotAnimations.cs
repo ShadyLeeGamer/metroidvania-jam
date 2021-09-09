@@ -8,13 +8,18 @@ public class RobotAnimations : MonoBehaviour
     
 
     [HideInInspector] public Transform spritesParent;
-    [HideInInspector] public Transform gun;
+    [HideInInspector] public Transform guns;
+    [HideInInspector] public GameObject outletPulse;
     [HideInInspector] public RobotMovement rm;
+    [HideInInspector] public RobotShooting rs;
 	void Start() {
 		rm = GetComponent<RobotMovement>();
+        rs = GetComponent<RobotShooting>();
 		spritesParent = transform.Find("Sprites");
-        gun = spritesParent.Find("RoboGuns");
+        guns = spritesParent.Find("RoboGuns");
 		chainParent = GameObject.Find("Environment").transform.Find("Projectiles").Find("Hooks");
+        outletPulse = spritesParent.Find("Robot Outlet").Find("Black Pulse").gameObject;
+        if (gameObject.name == "Player") outletPulse.SetActive(false);
 	}
 	void Update() {
 		faceTimer += Time.deltaTime;
@@ -91,7 +96,7 @@ public class RobotAnimations : MonoBehaviour
             transferTimer = 0;
             // Create blue light
             transferLight = Instantiate(transferLightPrefab, chainParent.parent);
-            transferLight.transform.position = gun.Find("GunTip").position;
+            transferLight.transform.position = rs.GetGun().Find("GunTip").position;
             gameObject.name = robotName;
             transferLight.name = "Player";
             Camera.main.GetComponent<CameraController>().FindPlayer();
@@ -102,6 +107,8 @@ public class RobotAnimations : MonoBehaviour
                 robot.GetComponent<EnemyRobotInputs>().enabled = false;
             rm.rb.constraints = RigidbodyConstraints2D.FreezeAll;
             robot.GetComponent<Rigidbody2D>().constraints = RigidbodyConstraints2D.FreezeAll;
+            outletPulse.SetActive(false);
+            robot.GetComponent<RobotAnimations>().outletPulse.SetActive(false);
         }
         else if (transferTimer < transferTime) {
             transferTimer += Time.fixedDeltaTime;
@@ -109,6 +116,7 @@ public class RobotAnimations : MonoBehaviour
             transferLight.transform.position = PosAlongChain(transferTimer / transferTime);
         }
         else {
+            transferTimer = -1;
             // Transfer to robot
             Destroy(transferLight);
             GameObject robot = rm.GetHookAttachedTo().transform.parent.parent.gameObject;
@@ -123,8 +131,13 @@ public class RobotAnimations : MonoBehaviour
                 GetComponent<EnemyRobotInputs>().enabled = true;
             if (robot.GetComponent<RobotAnimations>().robotName == "Enemy")
                 robot.GetComponent<EnemyRobotInputs>().enabled = false;
+            outletPulse.SetActive(true);
+            robot.GetComponent<RobotAnimations>().outletPulse.SetActive(false);
             // Prevent infinite transfer
-            if (rm.GetHook() != null) rm.RetractHook(false);
+            if (rm.GetHook() != null) {
+                rm.ShootHook();
+            }
+            rm.RetractHook(false);
             return false;
         }
         return true;
@@ -133,7 +146,7 @@ public class RobotAnimations : MonoBehaviour
 
 
     void PointGunAngle(float angle) {
-        gun.localEulerAngles = new Vector3(gun.localEulerAngles.x, gun.localEulerAngles.y, angle);
+        guns.localEulerAngles = new Vector3(guns.localEulerAngles.x, guns.localEulerAngles.y, angle);
     }
     public void PointGunDirection(Vector2 direction) {
         if (direction == Vector2.zero) {
