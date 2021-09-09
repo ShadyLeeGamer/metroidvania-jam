@@ -324,6 +324,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: Activated Outlet
       objectReference: {fileID: 0}
+    - target: {fileID: 3075121184718414897, guid: 6bb61dea85b90b7439be37c244ca2431, type: 3}
+      propertyPath: moveTime
+      value: 3
+      objectReference: {fileID: 0}
     - target: {fileID: 3941720336657912672, guid: 6bb61dea85b90b7439be37c244ca2431, type: 3}
       propertyPath: m_Name
       value: Room 4-2
@@ -438,6 +442,10 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 5726921761877318475, guid: e76f9dc30ff08f74fb6fc14596446d9b, type: 3}
+      propertyPath: m_Sprite
+      value: 
+      objectReference: {fileID: -8221772126445216923, guid: 86fcd3da08a49324cbe2195376944971, type: 3}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: e76f9dc30ff08f74fb6fc14596446d9b, type: 3}
 --- !u!4 &8767564685999119144 stripped
