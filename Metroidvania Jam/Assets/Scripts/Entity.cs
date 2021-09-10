@@ -5,9 +5,9 @@ public abstract class Entity : MonoBehaviour
     [SerializeField] int maxHealth;
     int health;
 
-    void Start()
+    public virtual void Start()
     {
-        maxHealth = health;
+        health = maxHealth;
     }
 
     public void TakeDamage(int damage)

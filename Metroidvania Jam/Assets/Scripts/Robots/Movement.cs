@@ -12,6 +12,7 @@ public abstract class Movement : Entity
 	Transform hooksParent;
 	[HideInInspector] public Transform hookGunTip;
 	public virtual void Start() {
+		base.Start(); // SET HEALTH
 		rb = GetComponent<Rigidbody2D>();
 		hooksParent = GameObject.Find("Environment").transform.Find("Projectiles").Find("Hooks");
 		hookGunTip = transform.Find("Sprites").Find("RoboGuns").Find("Hook Gun").Find("GunTip");
