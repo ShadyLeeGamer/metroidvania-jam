@@ -261,7 +261,7 @@ public abstract class Movement : Entity
 		// Clamp hook / player within chain range
 		bool outOfRange = (hookDist > 1.01f * chainLength);
 		// Clamp hook to player
-		if (hookAttachedTo == null) {
+		if (hookAttachedTo == null || hookAttachedTo.name == "Robot Outlet") {
 			hook.gravityScale = hookGravity;
 			hook.constraints = RigidbodyConstraints2D.FreezeRotation;
 			if (outOfRange) {

@@ -104,7 +104,10 @@ public class RobotMovement : Movement
 			}
 			// Jetpack
 			if (inputs.Jump) {
-				if (canJetpack) Jetpack();
+				if (canJetpack) {
+					Jetpack();
+					transform.localEulerAngles = new Vector3(transform.localEulerAngles.x, transform.localEulerAngles.y, 0);
+				}
 				if (hooking) {
 					retractingHook = true;
 					RetractHook(false);
