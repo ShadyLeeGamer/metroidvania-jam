@@ -60,12 +60,10 @@ public class RobotAnimations : MonoBehaviour
             else {
                 chcTimer = 0;
                 SpawnChargeLight();
-                Debug.Log("spawned");
             }
         }
         // Move purple lights along chain
         for (int i = 0; i < chargeLights.Count; i++) {
-            if (i == 0) Debug.Log(chargeLightTimers[i]);
             chargeLightTimers[i] += Time.fixedDeltaTime;
             if (chargeLightTimers[i] >= chargeLightTravelTime) {
                 DestroyChargeIndex(i);

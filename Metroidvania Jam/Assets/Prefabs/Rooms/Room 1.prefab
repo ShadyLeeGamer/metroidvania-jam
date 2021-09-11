@@ -132,10 +132,22 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 1416580647576205049}
     m_Modifications:
+    - target: {fileID: 4925163496221246056, guid: 520ad97e34d63f74ba1abe379b04b0c0, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: 5
+      objectReference: {fileID: 0}
+    - target: {fileID: 4925163496221246056, guid: 520ad97e34d63f74ba1abe379b04b0c0, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 16
+      objectReference: {fileID: 0}
     - target: {fileID: 6246439497110244194, guid: 520ad97e34d63f74ba1abe379b04b0c0, type: 3}
       propertyPath: activators.Array.data[0]
       value: 
       objectReference: {fileID: 6980046724477832984}
+    - target: {fileID: 6857195861620926247, guid: 520ad97e34d63f74ba1abe379b04b0c0, type: 3}
+      propertyPath: m_Range
+      value: 16
+      objectReference: {fileID: 0}
     - target: {fileID: 7736753760910679831, guid: 520ad97e34d63f74ba1abe379b04b0c0, type: 3}
       propertyPath: m_Name
       value: Room 1-1
