@@ -128,6 +128,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: Room 2-1
       objectReference: {fileID: 0}
+    - target: {fileID: 4822293459772440023, guid: 0777b6a8fff6812479e211031fb581e0, type: 3}
+      propertyPath: m_Sprite
+      value: 
+      objectReference: {fileID: -8221772126445216923, guid: 86fcd3da08a49324cbe2195376944971, type: 3}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 0777b6a8fff6812479e211031fb581e0, type: 3}
 --- !u!4 &5893643779971426197 stripped

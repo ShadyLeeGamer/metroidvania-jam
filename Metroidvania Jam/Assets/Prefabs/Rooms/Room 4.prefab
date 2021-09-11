@@ -320,14 +320,6 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 8767564686190297324}
     m_Modifications:
-    - target: {fileID: 2088406262676302992, guid: 6bb61dea85b90b7439be37c244ca2431, type: 3}
-      propertyPath: m_Name
-      value: Activated Outlet
-      objectReference: {fileID: 0}
-    - target: {fileID: 3075121184718414897, guid: 6bb61dea85b90b7439be37c244ca2431, type: 3}
-      propertyPath: moveTime
-      value: 3
-      objectReference: {fileID: 0}
     - target: {fileID: 3941720336657912672, guid: 6bb61dea85b90b7439be37c244ca2431, type: 3}
       propertyPath: m_Name
       value: Room 4-2

@@ -13,7 +13,7 @@ public class Door : Activated
     float timer = 0;
     public override void Update() {
     	base.Update();
-        if (blocker != null && FoundCollision(door, blocker)) return;
+        if (blocker != null && FoundCollision(door, blocker) && active) return;
 
     	if (active) {
     		if (timer < moveTime) {
@@ -47,6 +47,7 @@ public class Door : Activated
 
     public Collider2D blocker;
     bool FoundCollision(Collider2D col, Collider2D cTarget) {
+        if (cTarget == null || col == null) return false;
         // Detect collisions (without extra script)
         List<Collider2D> results = new List<Collider2D>();
         ContactFilter2D filter = new ContactFilter2D();
