@@ -92,7 +92,7 @@ public class CameraController : MonoBehaviour
 	void ResetDiscovered() {
 		discovered.Clear();
 		for (int i = 0; i < borderPoints.Count-1; i++)
-			discovered.Add(false);
+			discovered.Add(true); // false
 	}
 	Vector2 ClampWithinBorder(Vector2 pos) {
 		if (borderPoints.Count < 2) {

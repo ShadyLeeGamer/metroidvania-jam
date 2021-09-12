@@ -59,7 +59,7 @@ public class Lever : MonoBehaviour
     public float offsetX = 0.3f;
     public float maxAngle = 30;
     void MoveLever(float progress) {
-    	lever.transform.eulerAngles = (-maxAngle + 2*maxAngle * progress) * Vector3.forward;
+    	lever.transform.localEulerAngles = (-maxAngle + 2*maxAngle * progress) * Vector3.forward;
     }
 
 
@@ -77,8 +77,13 @@ public class Lever : MonoBehaviour
 		}
     }
     public bool canUnpress = false;
+    bool firstSwap = true;
     void OnSwapDir() {
-    	if (!canUnpress) return;
+    	if (!canUnpress) {
+    		if (!firstSwap) return;
+    		firstSwap = false;
+    	}
+    	
 		moving = !moving;
 		tmp.enabled = false;
 		a.active = false;

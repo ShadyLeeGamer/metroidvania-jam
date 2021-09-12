@@ -33,8 +33,11 @@ public class Button : MonoBehaviour
     	}
     	else {
     		GameObject found = SearchForCollision(button.GetComponent<Collider2D>(), requiredLayer);
-    		if (found == null)
+    		//Debug.Log(found);
+    		if (found == null && canUnpress) {
     			OnColExit();
+    			//return;
+    		}
     		if (timer > 0) {
     			float progress = timer / moveTime;
     			MoveButton(progress);
@@ -43,7 +46,8 @@ public class Button : MonoBehaviour
     		}
     		else {
     			MoveButton(0);
-    			timer = 0;
+    			if (canUnpress && found == null) timer = 0;
+    			//Debug.Log("down");
     			a.active = true;
     		}
     	}
@@ -84,13 +88,20 @@ public class Button : MonoBehaviour
 		ContactFilter2D filter = new ContactFilter2D();
 		filter.SetLayerMask(LayerMask.GetMask(layerName));
 		c.OverlapCollider(filter, results);
+		//Debug.Log(results.Count);
 		// Find a suitable result
 		for (int i = 0; i < results.Count; i++) {
+			//Debug.Log(results[i].gameObject);
 			if (results[i].gameObject.layer == LayerMask.NameToLayer(layerName))
 				return results[i].gameObject;
 		}
 		return null;
 	}
 
+
+	// todo: unpress is bugged for wide, works fine for elevator tho
+	// cam discovered is disabled
+	// cant transfer to mark-two
+	// lobby cam is low, left-lobby is high
 
 }
