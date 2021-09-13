@@ -218,6 +218,10 @@ PrefabInstance:
       propertyPath: m_Layer
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 5351856272050615633, guid: e9f389a1d23edd54184e94924d148314, type: 3}
+      propertyPath: m_TagString
+      value: Ground
+      objectReference: {fileID: 0}
     - target: {fileID: 5351856272050615636, guid: e9f389a1d23edd54184e94924d148314, type: 3}
       propertyPath: swapTime
       value: 0.3

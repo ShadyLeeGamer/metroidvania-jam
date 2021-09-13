@@ -103,8 +103,8 @@ public class RobotAnimations : MonoBehaviour
             GetComponent<PlayerInputs>().enabled = false;
             if (robot.GetComponent<RobotAnimations>().robotName == "Enemy")
                 robot.GetComponent<EnemyRobotInputs>().enabled = false;
-            rm.rb.constraints = RigidbodyConstraints2D.FreezeAll;
-            robot.GetComponent<Rigidbody2D>().constraints = RigidbodyConstraints2D.FreezeAll;
+            rm.Freeze();
+            robot.GetComponent<RobotMovement>().Freeze();
             outletPulse.SetActive(false);
             robot.GetComponent<RobotAnimations>().outletPulse.SetActive(false);
         }
@@ -122,8 +122,8 @@ public class RobotAnimations : MonoBehaviour
             Camera.main.GetComponent<CameraController>().FindPlayer();
             Destroy(GetComponent<PlayerInputs>());
             robot.AddComponent<PlayerInputs>();
-            rm.rb.constraints = RigidbodyConstraints2D.FreezeRotation;
-            robot.GetComponent<Rigidbody2D>().constraints = RigidbodyConstraints2D.FreezeRotation;
+            rm.UnFreeze();
+            robot.GetComponent<RobotMovement>().UnFreeze();
             // Enable / disable to preserve settings
             if (robotName == "Enemy")
                 GetComponent<EnemyRobotInputs>().enabled = true;

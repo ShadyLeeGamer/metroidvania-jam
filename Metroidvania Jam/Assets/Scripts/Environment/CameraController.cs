@@ -92,7 +92,7 @@ public class CameraController : MonoBehaviour
 	void ResetDiscovered() {
 		discovered.Clear();
 		for (int i = 0; i < borderPoints.Count-1; i++)
-			discovered.Add(true); // false
+			discovered.Add(false); // false
 	}
 	Vector2 ClampWithinBorder(Vector2 pos) {
 		if (borderPoints.Count < 2) {
@@ -103,12 +103,21 @@ public class CameraController : MonoBehaviour
 		Vector2 prevBP = borderPoints[0];
 		for (int i = 0; i < borderPoints.Count-1; i++) {
 			Vector2 BP = borderPoints[i+1];
+			Vector2 delta = BP - prevBP;
+			float area = delta.x * delta.y;
+			//Debug.Log(prevBP + " " + BP + " " + area);
+			if (area == 0) {
+				prevBP = BP;
+				continue;
+			}
 			Vector2 clamped = ClampSingleRect(pos, prevBP, BP);
 			float distance = Vector2.Distance(clamped, pos);
-			// pos is in this region - no need to clamp
-			if (distance < 0.001f) {
+			
+			if (distance < 4) {
 				discovered[i] = true;
-				return pos;
+				// pos is in this region - no need to clamp
+				if (distance < 0.001f)
+					return pos;
 			}
 
 			if (discovered[i] && (distance < minDist.y || i == 0))

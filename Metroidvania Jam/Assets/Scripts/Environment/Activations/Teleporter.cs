@@ -9,8 +9,10 @@ public class Teleporter : Activated
     public Vector2 offsetPos;
     List<Rigidbody2D> objects = new List<Rigidbody2D>();
     void TeleportAll() {
+        //Debug.Log("teleporting!");
         Vector3 pos = nextTeleporter.transform.position + (Vector3)nextTeleporter.offsetPos;
         for (int i = 0; i < objects.Count; i++) {
+            if (objects[i] == null) return;
             Vector3 delta = objects[i].transform.position - transform.position - (Vector3)offsetPos;
             objects[i].transform.position = pos + delta;
             if (objects[i].gameObject.name == "Player")

@@ -185,7 +185,7 @@ public class RobotShooting : RobotGun
     	if (currentGunIndex >= 0 && currentGunIndex < unlockedGuns.Count) {
     		RoboGun g = unlockedGuns[currentGunIndex];
     		if (anim.Energy >= g.energyCost) {
-    			Debug.Log("shot");
+    			//Debug.Log("shot");
     			g.Shoot(projectileParent);
     			shootCooldown = g.cooldown;
     			anim.Energy -= g.energyCost;

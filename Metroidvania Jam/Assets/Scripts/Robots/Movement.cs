@@ -20,6 +20,14 @@ public abstract class Movement : Entity
 	}
 
 
+	public RigidbodyConstraints2D constraints;
+	public void Freeze() {
+		rb.constraints = RigidbodyConstraints2D.FreezeAll;
+	}
+	public void UnFreeze() {
+		rb.constraints = constraints;
+	}
+
 
 	public float horizontalSpeed = 5;
 	public float accelerateTime = 0.1f;
@@ -87,7 +95,7 @@ public abstract class Movement : Entity
 		return -1;
 	}
 	public bool GetTurtle() {
-		bool turtled = Mathf.Cos(transform.eulerAngles.z * Mathf.Deg2Rad) < 0.1f;
+		bool turtled = Mathf.Cos(transform.eulerAngles.z * Mathf.Deg2Rad) < 0.2f;
 		turtled &= onGround;
 		return turtled;
 	}
@@ -144,11 +152,22 @@ public abstract class Movement : Entity
 	}
 	public void Walljump() {
 		if (jCharges <= 0) return;
-		if (!onGround && onWall != 0) {
+		if (onGround) {
+			Jump();
+			return;
+		}
+		if (onWall != 0) {
 			jCharges--;
 			rb.velocity = Vector2.zero;
-			if (onWall == 1) JumpDegrees(walljumpNormalDegrees, walljumpSpeed);
-			if (onWall == -1) JumpDegrees(180-walljumpNormalDegrees, walljumpSpeed);
+			if (onWall == 1) {
+				transform.position += 0.5f * Vector3.right;
+				JumpDegrees(walljumpNormalDegrees, walljumpSpeed);
+			}
+			if (onWall == -1) {
+				transform.position -= 0.5f * Vector3.right;
+				JumpDegrees(180-walljumpNormalDegrees, walljumpSpeed);
+			}
+			
 		}
 	}
 	void JumpDirection(Vector2 direction, float speed) {
@@ -256,14 +275,14 @@ public abstract class Movement : Entity
 		}
 
 		// Search for a hookable
- 		if (!retracting)
+ 		if (!retracting && hookAttachedTo == null)
  			hookAttachedTo = SearchForCollision(hook, "Hookable");
 		//Debug.Log(hookAttachedTo);
 
 		// Clamp hook / player within chain range
 		bool outOfRange = (hookDist > 1.01f * chainLength);
 		// Clamp hook to player
-		if (hookAttachedTo == null || hookAttachedTo.name == "Robot Outlet") {
+		if (hookAttachedTo == null) {
 			hook.gravityScale = hookGravity;
 			hook.constraints = RigidbodyConstraints2D.FreezeRotation;
 			if (outOfRange) {

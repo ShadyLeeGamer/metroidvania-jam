@@ -755,6 +755,7 @@ MonoBehaviour:
   maxHealth: 100
   rb: {fileID: 0}
   hookGunTip: {fileID: 0}
+  constraints: 0
   horizontalSpeed: 5
   accelerateTime: 0.5
   decelerateTime: 1
