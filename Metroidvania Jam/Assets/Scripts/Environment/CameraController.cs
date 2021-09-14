@@ -22,10 +22,16 @@ public class CameraController : MonoBehaviour
     public float moveSensitivity = 0.8f;
     public bool shaking = false;
     public float shakeIntensity = 1f;
+    public float winY = 50;
+    bool won = false;
     void Update() {
     	if (titleScreen) {
     		transform.position = (Vector3)titleScreenPos + offset;
     		return;
+    	}
+    	if (!won && transform.position.y >= winY) {
+    		won = true;
+    		sc.Win();
     	}
 
 
@@ -156,6 +162,7 @@ public class CameraController : MonoBehaviour
     public Vector2 startPos;
     public void StartGame() {
     	titleScreen = false;
+    	won = false;
     	transform.position = (Vector3)startPos + offset;
     }
     public void ExitGame() {

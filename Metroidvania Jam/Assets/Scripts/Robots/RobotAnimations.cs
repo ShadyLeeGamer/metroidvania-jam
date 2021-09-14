@@ -10,22 +10,38 @@ public class RobotAnimations : MonoBehaviour
     [HideInInspector] public Transform spritesParent;
     [HideInInspector] public Transform guns;
     [HideInInspector] public GameObject outletPulse;
+    [HideInInspector] public GameObject jetpack;
     [HideInInspector] public RobotMovement rm;
     [HideInInspector] public RobotShooting rs;
+    [HideInInspector] public CameraController cc;
 	void Start() {
 		rm = GetComponent<RobotMovement>();
         rs = GetComponent<RobotShooting>();
+        cc = Camera.main.GetComponent<CameraController>();
 		spritesParent = transform.Find("Sprites");
         guns = spritesParent.Find("RoboGuns");
 		chainParent = GameObject.Find("Environment").transform.Find("Projectiles").Find("Hooks");
         outletPulse = spritesParent.Find("Robot Outlet").Find("Black Pulse").gameObject;
+        jetpack = spritesParent.Find("Jetpack").gameObject;
         if (gameObject.name == "Player") outletPulse.SetActive(false);
 	}
 	void Update() {
 		faceTimer += Time.deltaTime;
 		CheckTurnOver();
+        if (gameObject.name == "Player") {
+            cc.sc.SetEnergy(Energy);
+            cc.sc.SetName(robotName);
+            cc.sc.SetHealth(1);
+        }
 	}
 
+
+    public void HideJetpack() {
+        jetpack.SetActive(false);
+    }
+    public void ShowJetpack() {
+        jetpack.SetActive(true);
+    }
 
 
 // extra: SpriteAnim lights or add actual lights

@@ -157,4 +157,11 @@ public class SettingsController : MonoBehaviour
         robot.text = val;
     }
 
+    // Win UI
+    public UIAnimations winFade;
+    public void Win() {
+        winFade.gameObject.SetActive(true);
+        winFade.StartSingle();
+    }
+
 }

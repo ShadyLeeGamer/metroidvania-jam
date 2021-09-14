@@ -17,7 +17,8 @@ public class PlayerInputs : MonoBehaviour
     [HideInInspector] public KeyCode ShootLeftCode = KeyCode.LeftArrow;
     [HideInInspector] public KeyCode ShootRightCode = KeyCode.RightArrow;
 
-    [HideInInspector] public KeyCode JumpCode = KeyCode.Space;
+// super weird bug: when this variable is called "JumpCode" it alternates between a value of KeyCode.W and KeyCode.Space
+    [HideInInspector] public KeyCode JCode = KeyCode.Space;
     [HideInInspector] public KeyCode SwapCode = KeyCode.E;
 
 
@@ -28,7 +29,10 @@ public class PlayerInputs : MonoBehaviour
         cc = Camera.main.GetComponent<CameraController>();
     }
     void Update() {
-        if (cc.sc.paused || cc.titleScreen) return;
+// super weird bug: see above
+        //Debug.Log(JCode);
+        //Debug.Log(Input.GetKey(JCode));
+        if ((cc.sc != null && cc.sc.paused) || cc.titleScreen) return;
         UpdateRaw();
     }
     void UpdateRaw() {
@@ -42,7 +46,7 @@ public class PlayerInputs : MonoBehaviour
         inp.ShootLeft = Input.GetKey(ShootLeftCode);
         inp.ShootRight = Input.GetKey(ShootRightCode);
 
-        inp.Jump = Input.GetKey(JumpCode);
+        inp.Jump = Input.GetKey(JCode);
         inp.SwapTool = Input.GetKey(SwapCode);
 
         inp.Cursor = Camera.main.ScreenToWorldPoint(Input.mousePosition);

@@ -14,6 +14,7 @@ public class UIAnimations : MonoBehaviour
 
     // temp fix
     public bool startOrEnd = true;
+    public UIAnimations nextAnim;
 
     public RenderDataUI data;
     float renderTimer = 0;
@@ -23,6 +24,8 @@ public class UIAnimations : MonoBehaviour
             renderTimer = 0;
             MenuSwapper m = GetComponent<MenuSwapper>();
             if (m != null) m.Swap();
+            if (nextAnim != null)
+                nextAnim.StartSingle();
             finished = true;
             // temp fix
             CameraController cc = Camera.main.GetComponent<CameraController>();

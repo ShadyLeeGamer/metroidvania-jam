@@ -37,11 +37,14 @@ public class RobotMovement : Movement
 			SmoothMove(0);
 			return;
 		}
-
-
-		//Debug.Log(sliding + " " + dashing + " " + slamming + " " + Time.time + " " + GetJumpCharges() + " " + GetDashCharges());
 		inputs.CalculateKeyDown();
 		inputs.CalculateExtra();
+
+		//if (inputs.JumpGetDown) Debug.Log("Jumped");
+		//if (inputs.UpGetDown) Debug.Log("Up");
+		//Debug.Log(inputs.Jump + " " + inputs.Up);
+		//Debug.Log(sliding + " " + dashing + " " + slamming + " " + Time.time + " " + GetJumpCharges() + " " + GetDashCharges());
+		
 
 		// When using the GetDown feature, must call from here
 		if (inputs.SwapGetDown || inputs.Mouse2GetDown)
@@ -66,7 +69,7 @@ public class RobotMovement : Movement
 			}
 		}
 
-
+		anim.HideJetpack();
 		if (!dashing && !slamming) {
 			// Midair move horizontally
 			if (!sliding) {
@@ -107,6 +110,7 @@ public class RobotMovement : Movement
 			if (inputs.Jump) {
 				if (canJetpack) {
 					Jetpack();
+					anim.ShowJetpack();
 					transform.localEulerAngles = new Vector3(transform.localEulerAngles.x, transform.localEulerAngles.y, 0);
 				}
 				if (hooking) {
