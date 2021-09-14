@@ -19,9 +19,13 @@ public class SettingsController : MonoBehaviour
 	CanvasScaler cs;
     void Start() {
     	cs = GetComponent<CanvasScaler>();
-    	//FindAudio();
+        Camera.main.GetComponent<CameraController>().sc = this;
+
+    	FindAudio();
+        // unimplemented rw from .txt
         // if (Settings.unread) Settings.Read();
-    	//ReadSettings();
+    	Revert();
+        Save();
     }
     List<AudioSource> music = new List<AudioSource>();
     List<AudioSource> sfx = new List<AudioSource>();
@@ -36,6 +40,16 @@ public class SettingsController : MonoBehaviour
     		sfx.Add(sources[i].GetComponent<AudioSource>());
     }
     
+    // General purpose
+    public void Save() {
+        WriteUI();
+        ApplyAll();
+    }
+    public void Revert() {
+        Settings.Default();
+        ReadSettings();
+    }
+
     // Sync between Settings and UI
     public void WriteUI() { // call on Back / Save
     	Settings.masterVolume = masterVolume.value;
@@ -44,9 +58,8 @@ public class SettingsController : MonoBehaviour
     	Settings.uiScale = uiScale.value;
     	Settings.fullscreen = fullscreen.isOn;
     	//Settings.Write();
-    	ApplyAll();
     }
-    public void ReadSettings() { // call on Start
+    public void ReadSettings() { // call on Start / Revert
     	masterVolume.value = Settings.masterVolume;
     	musicVolume.value = Settings.musicVolume;
     	sfxVolume.value = Settings.sfxVolume;
@@ -82,7 +95,7 @@ public class SettingsController : MonoBehaviour
     public Vector2 minRefRes = new Vector2(800, 600);
     public Vector2 maxRefRes = new Vector2(1920, 1080);
     public void ApplyUIscale(float val) {
-    	Settings.uiScale = val;
+    	Settings.uiScale = 1-val;
     	cs.referenceResolution = minRefRes + Settings.uiScale * (maxRefRes-minRefRes);
     }
     public void ApplyFullscreen(bool val) {
@@ -117,11 +130,17 @@ public class SettingsController : MonoBehaviour
     			return;
     		}
     }
+    [HideInInspector] public bool paused = false;
     public void Pause() {
         Time.timeScale = 0;
+        paused = true;
     }
     public void UnPause() {
         Time.timeScale = 1;
+        paused = false;
+    }
+    public void QuitGame() {
+        Application.Quit();
     }
 
     // HP / Energy

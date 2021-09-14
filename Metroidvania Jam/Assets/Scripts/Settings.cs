@@ -10,16 +10,16 @@ public static class Settings
     public static float sfxVolume;
     public static float uiScale;
     public static bool fullscreen;
-    public static bool customCursor;
 
     public static void Default() {
-    	masterVolume = 1;
+    	masterVolume = 0.5f;
     	musicVolume = 1;
     	sfxVolume = 0.75f;
     	uiScale = 0.5f;
     	fullscreen = true;
-    	customCursor = true;
     }
+
+    // unimplemented rw from .txt
     public static bool unread = true;
     public static void Read() {
     	unread = false;

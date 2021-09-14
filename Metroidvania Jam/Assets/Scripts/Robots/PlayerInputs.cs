@@ -21,12 +21,14 @@ public class PlayerInputs : MonoBehaviour
     [HideInInspector] public KeyCode SwapCode = KeyCode.E;
 
 
-    // todo: someone please make this script inherit Inputs
     Inputs inp;
+    CameraController cc;
     void Start() {
         inp = GetComponent<Inputs>();
+        cc = Camera.main.GetComponent<CameraController>();
     }
     void Update() {
+        if (cc.sc.paused || cc.titleScreen) return;
         UpdateRaw();
     }
     void UpdateRaw() {

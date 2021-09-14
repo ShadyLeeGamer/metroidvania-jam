@@ -5,11 +5,14 @@ using UnityEngine;
 public class CameraController : MonoBehaviour
 {
 
+	// A ref to SettingsController for easy access to Canvas / Audio, from robots / enemies / bullets
+	// // gets assigned by Canvas
+    [HideInInspector] public SettingsController sc;
+
 	public Vector3 offset = new Vector3(0, 0, -10);
     void Start() {
         FindPlayer();
         ResetDiscovered();
-        transform.position = offset;
     }
     Transform player;
     public void FindPlayer() {
@@ -20,6 +23,12 @@ public class CameraController : MonoBehaviour
     public bool shaking = false;
     public float shakeIntensity = 1f;
     void Update() {
+    	if (titleScreen) {
+    		transform.position = (Vector3)titleScreenPos + offset;
+    		return;
+    	}
+
+
     	if (player == null) {
     		Debug.LogError("Camera couldn't find player!");
     		FindPlayer();
@@ -141,6 +150,23 @@ public class CameraController : MonoBehaviour
 	}
 
 
+	// Title screen / cutscenes
+	public bool titleScreen = true;
+    public Vector2 titleScreenPos;
+    public Vector2 startPos;
+    public void StartGame() {
+    	titleScreen = false;
+    	transform.position = (Vector3)startPos + offset;
+    }
+    public void ExitGame() {
+    	titleScreen = true;
+    	transform.position = (Vector3)titleScreenPos + offset;
+    }
+
+
+
+
+
 	// To use room debug:
 	// Enable Gizmos in game view window (there's a button)
 	public bool debug = false;
@@ -181,5 +207,9 @@ public class CameraController : MonoBehaviour
 			prevBP = BP;
     	}
     }
+
+
+
+
 
 }
