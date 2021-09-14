@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
+using TMPro;
 
 public class SettingsController : MonoBehaviour
 {
@@ -14,14 +15,12 @@ public class SettingsController : MonoBehaviour
 	public Slider sfxVolume;
 	public Slider uiScale;
 	public Toggle fullscreen;
-	public Toggle customCursor;
 
 	CanvasScaler cs;
     void Start() {
-    	//cs = GetComponent<CanvasScaler>();
+    	cs = GetComponent<CanvasScaler>();
     	//FindAudio();
-    	//FindCursor();
-    	//if (Settings.unread) Settings.Read();
+        // if (Settings.unread) Settings.Read();
     	//ReadSettings();
     }
     List<AudioSource> music = new List<AudioSource>();
@@ -36,10 +35,6 @@ public class SettingsController : MonoBehaviour
     	for (int i = 0; i < sources.Length; i++)
     		sfx.Add(sources[i].GetComponent<AudioSource>());
     }
-    GameObject cursor;
-    void FindCursor() {
-    	cursor = GameObject.FindWithTag("Cursor");
-    }
     
     // Sync between Settings and UI
     public void WriteUI() { // call on Back / Save
@@ -48,8 +43,7 @@ public class SettingsController : MonoBehaviour
     	Settings.sfxVolume = sfxVolume.value;
     	Settings.uiScale = uiScale.value;
     	Settings.fullscreen = fullscreen.isOn;
-    	Settings.customCursor = customCursor.isOn;
-    	Settings.Write();
+    	//Settings.Write();
     	ApplyAll();
     }
     public void ReadSettings() { // call on Start
@@ -58,7 +52,6 @@ public class SettingsController : MonoBehaviour
     	sfxVolume.value = Settings.sfxVolume;
     	uiScale.value = Settings.uiScale;
     	fullscreen.isOn = Settings.fullscreen;
-    	customCursor.isOn = Settings.customCursor;
     }
 
     // Apply the settings
@@ -68,7 +61,6 @@ public class SettingsController : MonoBehaviour
     	ApplySFXVolume(Settings.sfxVolume);
     	ApplyUIscale(Settings.uiScale);
     	ApplyFullscreen(Settings.fullscreen);
-    	ApplyCustomCursor(Settings.customCursor);
     }
     public void ApplyMasterVolume(float val) {
     	Settings.masterVolume = val;
@@ -97,10 +89,7 @@ public class SettingsController : MonoBehaviour
     	Settings.fullscreen = val;
     	Screen.SetResolution(Screen.width, Screen.height, Settings.fullscreen);
     }
-    public void ApplyCustomCursor(bool val) {
-    	Settings.customCursor = val;
-    	cursor.SetActive(Settings.customCursor);
-    }
+
 
 
     // General functions
@@ -127,6 +116,26 @@ public class SettingsController : MonoBehaviour
     			sfx[i].Stop();
     			return;
     		}
+    }
+    public void Pause() {
+        Time.timeScale = 0;
+    }
+    public void UnPause() {
+        Time.timeScale = 1;
+    }
+
+    // HP / Energy
+    public Slider health;
+    public Slider energy;
+    public TMP_Text robot;
+    public void SetHealth(float val) {
+        health.value = val;
+    }
+    public void SetEnergy(float val) {
+        energy.value = val;
+    }
+    public void SetName(string val) {
+        robot.text = val;
     }
 
 }

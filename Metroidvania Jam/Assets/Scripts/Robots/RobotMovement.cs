@@ -39,7 +39,7 @@ public class RobotMovement : Movement
 		}
 
 
-		Debug.Log(sliding + " " + dashing + " " + slamming + " " + Time.time + " " + GetJumpCharges() + " " + GetDashCharges());
+		//Debug.Log(sliding + " " + dashing + " " + slamming + " " + Time.time + " " + GetJumpCharges() + " " + GetDashCharges());
 		inputs.CalculateKeyDown();
 		inputs.CalculateExtra();
 
