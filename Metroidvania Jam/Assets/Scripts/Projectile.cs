@@ -28,7 +28,7 @@ public class Projectile : MonoBehaviour, IPooledObject
 
     void OnTriggerEnter2D(Collider2D other)
     {
-        PlayerMovement otherCharacter = other.GetComponent<PlayerMovement>();
+        RobotMovement otherCharacter = other.GetComponent<RobotMovement>();
         if (otherCharacter)
         {
             if ((!isPlayer && other.GetComponent<Enemy>()) ||

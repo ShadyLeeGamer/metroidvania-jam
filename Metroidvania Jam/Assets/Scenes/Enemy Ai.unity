@@ -323,6 +323,7 @@ GameObject:
   - component: {fileID: 412872090}
   - component: {fileID: 412872088}
   - component: {fileID: 412872094}
+  - component: {fileID: 412872089}
   m_Layer: 3
   m_Name: Player
   m_TagString: Untagged
@@ -360,13 +361,58 @@ MonoBehaviour:
   jetpackUseTime: 2
   slamGravity: 3
   hookThrowSpeed: 10
-  hookRetractTime: 1
+  hookRetractSpeed: 10
+  hookRetractAcceleration: 5
+  hookLaunchSpeed: 10
   hookGravity: 1
-  chainLength: 4
+  hookDrag: 0.5
+  maxChainLength: 4
+  hookRestitution: 0.6
+  playerRestitution: 0.95
   hookPrefab: {fileID: 0}
-  faceParent: {fileID: 1215179918}
+  faceParent: {fileID: 0}
   dashCooldown: 0.3
   wallCooldown: 0.2
+  transferTime: 1
+  blueLightPrefab: {fileID: 0}
+  robotName: Robot
+--- !u!114 &412872089
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 412872087}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 856c518de80243d4a8336466d3f7f1bb, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Up: 0
+  Down: 0
+  Left: 0
+  Right: 0
+  ShootUp: 0
+  ShootDown: 0
+  ShootLeft: 0
+  ShootRight: 0
+  Jump: 0
+  SwapTool: 0
+  Cursor: {x: 0, y: 0}
+  Mouse1: 0
+  Mouse2: 0
+  UpGetDown: 0
+  DownGetDown: 0
+  LeftGetDown: 0
+  RightGetDown: 0
+  JumpGetDown: 0
+  SwapGetDown: 0
+  Mouse1GetDown: 0
+  Mouse2GetDown: 0
+  Horizontal: 0
+  DoubleLeft: 0
+  DoubleRight: 0
+  doubleTapTime: 0.4
 --- !u!50 &412872090
 Rigidbody2D:
   serializedVersion: 4
@@ -493,12 +539,16 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2cd3127bd4801f648b7260959f4861c8, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  mouseWorld: {x: 0, y: 0}
-  hAxis: 0
-  dash: 0
-  jump: 0
-  slam: 0
-  jet: 0
+  UpCode: 119
+  DownCode: 115
+  LeftCode: 97
+  RightCode: 100
+  ShootUpCode: 273
+  ShootDownCode: 274
+  ShootLeftCode: 276
+  ShootRightCode: 275
+  JumpCode: 32
+  SwapCode: 101
 --- !u!1 &570560355
 GameObject:
   m_ObjectHideFlags: 0
@@ -1307,9 +1357,14 @@ MonoBehaviour:
   jetpackUseTime: 2
   slamGravity: 3
   hookThrowSpeed: 10
-  hookRetractTime: 1
+  hookRetractSpeed: 10
+  hookRetractAcceleration: 5
+  hookLaunchSpeed: 10
   hookGravity: 1
-  chainLength: 4
+  hookDrag: 0.5
+  maxChainLength: 4
+  hookRestitution: 0.6
+  playerRestitution: 0.95
   hookPrefab: {fileID: 0}
   stoppingRange: 4
   updateRate: 0
@@ -1882,9 +1937,14 @@ MonoBehaviour:
   jetpackUseTime: 2
   slamGravity: 3
   hookThrowSpeed: 10
-  hookRetractTime: 1
+  hookRetractSpeed: 10
+  hookRetractAcceleration: 5
+  hookLaunchSpeed: 10
   hookGravity: 1
-  chainLength: 4
+  hookDrag: 0.5
+  maxChainLength: 4
+  hookRestitution: 0.6
+  playerRestitution: 0.95
   hookPrefab: {fileID: 0}
   stoppingRange: 4
   updateRate: 0
