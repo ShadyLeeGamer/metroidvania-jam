@@ -2,6 +2,9 @@ using UnityEngine;
 
 public class Enemy : Movement
 {
+
+    // Initially written by ShadyLee, updated by willowed
+
     [Header("Follow")]
     [SerializeField] float stoppingRange;
     [SerializeField] float updateRate;
@@ -57,7 +60,6 @@ public class Enemy : Movement
         player = hit ? hit.transform : null;
         targetPos = hit ? player.position : transform.position + (Vector3.right * faceDir);
 
-        Debug.Log(faceDir + " " + DiffWithTargetPos);
         if (Mathf.Abs(DiffWithTargetPos.x) > stoppingRange)
             SmoothMove(faceDir);
 

@@ -2,11 +2,14 @@ using UnityEngine;
 
 public abstract class Entity : MonoBehaviour
 {
-    [SerializeField] int maxHealth;
-    int health;
+    [HideInInspector] public int maxHealth;
+    [HideInInspector] public int health;
 
     public virtual void Start()
     {
+        Heal();
+    }
+    public void Heal() {
         health = maxHealth;
     }
 

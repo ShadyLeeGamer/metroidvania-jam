@@ -276,6 +276,7 @@ MonoBehaviour:
   maxHealth: 100
   rb: {fileID: 0}
   hookGunTip: {fileID: 0}
+  constraints: 0
   horizontalSpeed: 3
   accelerateTime: 0.1
   decelerateTime: 1
@@ -311,7 +312,7 @@ MonoBehaviour:
   lookRaycastPosOffset: {x: 0, y: 0.5, z: 0}
   playerLayerMask:
     serializedVersion: 2
-    m_Bits: 8
+    m_Bits: 256
   gun: {fileID: 11400000, guid: 20d9bad8e0e8afe488d3a43b3a2dcfe1, type: 2}
   shootPoint: {fileID: 8658612814506672318}
   drawGizmos: 1

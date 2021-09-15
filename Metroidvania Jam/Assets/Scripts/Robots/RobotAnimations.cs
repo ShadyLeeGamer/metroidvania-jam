@@ -31,7 +31,7 @@ public class RobotAnimations : MonoBehaviour
         if (gameObject.name == "Player") {
             cc.sc.SetEnergy(Energy);
             cc.sc.SetName(robotName);
-            cc.sc.SetHealth(1);
+            cc.sc.SetHealth((float)rm.health / rm.maxHealth);
         }
 	}
 

@@ -488,7 +488,7 @@ BoxCollider2D:
   m_IsTrigger: 1
   m_UsedByEffector: 0
   m_UsedByComposite: 0
-  m_Offset: {x: 0.1, y: 0.15}
+  m_Offset: {x: -0.1, y: 0.15}
   m_SpriteTilingProperty:
     border: {x: 0, y: 0, z: 0, w: 0}
     pivot: {x: 0, y: 0}
@@ -499,7 +499,7 @@ BoxCollider2D:
     adaptiveTiling: 0
   m_AutoTiling: 0
   serializedVersion: 2
-  m_Size: {x: 1.3, y: 1.3}
+  m_Size: {x: 1, y: 1.3}
   m_EdgeRadius: 0
 --- !u!1 &2155944615996008545
 GameObject:
@@ -2061,6 +2061,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   maxHealth: 100
+  health: 0
   rb: {fileID: 0}
   hookGunTip: {fileID: 0}
   constraints: 4
@@ -2092,8 +2093,8 @@ MonoBehaviour:
   hookPrefab: {fileID: 3638657340002132965, guid: eb08fad5035c87040b0f0b331187f8b2, type: 3}
   canMoveInAir: 1
   canJump: 1
-  canWallJump: 1
-  canWallSlide: 1
+  canWallJump: 0
+  canWallSlide: 0
   canDash: 0
   canSlam: 0
   canJetpack: 0
