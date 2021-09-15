@@ -57,6 +57,7 @@ public class Enemy : Movement
         player = hit ? hit.transform : null;
         targetPos = hit ? player.position : transform.position + (Vector3.right * faceDir);
 
+        Debug.Log(DiffWithTargetPos);
         if (Mathf.Abs(DiffWithTargetPos.x) > stoppingRange)
             SmoothMove(faceDir);
 
