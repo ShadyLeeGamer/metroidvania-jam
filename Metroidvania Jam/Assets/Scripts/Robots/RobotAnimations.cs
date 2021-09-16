@@ -194,8 +194,7 @@ public class RobotAnimations : MonoBehaviour
 	bool onceTurtled = false;
 	void CheckTurnOver() {
 		// If upside-down and onGround and not moving
-		bool turtled = rm.GetTurtle() && rm.rb.velocity.magnitude < 0.1f;
-		onceTurtled |= turtled;
+		onceTurtled |= rm.GetTurtle();
 		if (!onceTurtled) return;
 		// Once turtled, wait for turnOverTime
 		if (tOTimer < turnOverTime) {

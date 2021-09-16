@@ -156,6 +156,10 @@ PrefabInstance:
       propertyPath: activators.Array.data[0]
       value: 
       objectReference: {fileID: 6980046724477832984}
+    - target: {fileID: 6246439497741304881, guid: 520ad97e34d63f74ba1abe379b04b0c0, type: 3}
+      propertyPath: m_TagString
+      value: Ground
+      objectReference: {fileID: 0}
     - target: {fileID: 6857195861620926247, guid: 520ad97e34d63f74ba1abe379b04b0c0, type: 3}
       propertyPath: m_Range
       value: 16

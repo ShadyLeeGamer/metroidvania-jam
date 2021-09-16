@@ -33,18 +33,17 @@ public class RobotMovement : Movement
 	bool hooking = false;
 	bool retractingHook = false;
 	void FixedUpdate() {
-		if (GetTurtle()) {
-			SmoothMove(0);
-			return;
-		}
 		inputs.CalculateKeyDown();
 		inputs.CalculateExtra();
 
+		if (onWall != 0 && !onGround && canWallSlide) sliding = true;
+		else sliding = false;
+
+		//Debug.Log(onGround + " " + onWall);
 		//if (inputs.JumpGetDown) Debug.Log("Jumped");
 		//if (inputs.UpGetDown) Debug.Log("Up");
 		//Debug.Log(inputs.Jump + " " + inputs.Up);
 		//Debug.Log(sliding + " " + dashing + " " + slamming + " " + Time.time + " " + GetJumpCharges() + " " + GetDashCharges());
-		
 
 		// When using the GetDown feature, must call from here
 		if (inputs.SwapGetDown || inputs.Mouse2GetDown)
@@ -74,26 +73,28 @@ public class RobotMovement : Movement
 			// Midair move horizontally
 			if (!sliding) {
 				if (wCooldown <= 0) {
-					if (GetOnGround() || canMoveInAir) SmoothMove(inputs.Horizontal);
+					if ((onGround || canMoveInAir) && !GetTurtle())
+						SmoothMove(inputs.Horizontal);
+					else SmoothMove(0);
 					if (!hooking || retractingHook) anim.FaceVelocity();
 				}
 			}
 			else {
-				int onWall = (canWallSlide)? Wallslide() : 0;
+				Wallslide();
 				// Move off wall
 				if (onWall == 1) {
 					anim.FaceRight(true);
 					if (inputs.Horizontal > 0)
-						if (GetOnGround() || canMoveInAir) SmoothMove(inputs.Horizontal);
+						if (onGround || canMoveInAir) SmoothMove(inputs.Horizontal);
 				}
 				if (onWall == -1) {
 					anim.FaceRight(false);
 					if (inputs.Horizontal < 0)
-						if (GetOnGround() || canMoveInAir) SmoothMove(inputs.Horizontal);
+						if (onGround || canMoveInAir) SmoothMove(inputs.Horizontal);
 				}
 			}
 			// Jump / walljump
-			if (inputs.UpGetDown) {
+			if (inputs.UpGetDown && !GetTurtle()) {
 				if (!sliding) {
 					if (canJump) Jump();
 				}
@@ -107,7 +108,7 @@ public class RobotMovement : Movement
 				}
 			}
 			// Jetpack
-			if (inputs.Jump) {
+			if (inputs.Jump && !GetTurtle()) {
 				if (canJetpack) {
 					Jetpack();
 					anim.ShowJetpack();
@@ -168,22 +169,6 @@ public class RobotMovement : Movement
 
 
 	bool sliding = false;
-	public override void OnTriggerEnter2D(Collider2D info) {
-		base.OnTriggerEnter2D(info);
-
-		GameObject other = info.gameObject;
-		if (other.tag == "Wall") {
-			if (canWallSlide) sliding = true;
-		}
-	}
-	public override void OnTriggerExit2D(Collider2D info) {
-		base.OnTriggerExit2D(info);
-
-		GameObject other = info.gameObject;
-		if (other.tag == "Wall") {
-			sliding = false;
-		}
-	}
 
 	// Called by RobotShooting
 	// hook retracts when unpressed shoot keys, unless attached

@@ -39,6 +39,10 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 5893643779723783428}
     m_Modifications:
+    - target: {fileID: 36179408822246219, guid: 6e364fd06ff9e8347a094bbcc4fe3db2, type: 3}
+      propertyPath: m_TagString
+      value: Wall
+      objectReference: {fileID: 0}
     - target: {fileID: 4257578168573506741, guid: 6e364fd06ff9e8347a094bbcc4fe3db2, type: 3}
       propertyPath: m_RootOrder
       value: 5
@@ -220,7 +224,15 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 5351856272050615633, guid: e9f389a1d23edd54184e94924d148314, type: 3}
       propertyPath: m_TagString
-      value: Ground
+      value: Untagged
+      objectReference: {fileID: 0}
+    - target: {fileID: 5351856272050615635, guid: e9f389a1d23edd54184e94924d148314, type: 3}
+      propertyPath: shatterSpeed
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5351856272050615635, guid: e9f389a1d23edd54184e94924d148314, type: 3}
+      propertyPath: requiredLayer
+      value: Robot
       objectReference: {fileID: 0}
     - target: {fileID: 5351856272050615636, guid: e9f389a1d23edd54184e94924d148314, type: 3}
       propertyPath: swapTime

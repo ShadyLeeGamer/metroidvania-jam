@@ -162,12 +162,10 @@ public class CameraController : MonoBehaviour
     public Vector2 startPos;
     public void StartGame() {
     	titleScreen = false;
-    	won = false;
     	transform.position = (Vector3)startPos + offset;
     }
     public void ExitGame() {
-    	titleScreen = true;
-    	transform.position = (Vector3)titleScreenPos + offset;
+    	sc.LoadScene("World");
     }
 
 

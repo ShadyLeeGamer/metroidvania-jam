@@ -221,9 +221,21 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 3592788793359100084, guid: 820ad5eb82bd7be418c2810350e873c8, type: 3}
+      propertyPath: m_TagString
+      value: Wall
+      objectReference: {fileID: 0}
     - target: {fileID: 4311977509727599882, guid: 820ad5eb82bd7be418c2810350e873c8, type: 3}
       propertyPath: m_Name
-      value: Activated Door
+      value: Green Door
+      objectReference: {fileID: 0}
+    - target: {fileID: 8948344582357669279, guid: 820ad5eb82bd7be418c2810350e873c8, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: -0.1
+      objectReference: {fileID: 0}
+    - target: {fileID: 9208389932309248178, guid: 820ad5eb82bd7be418c2810350e873c8, type: 3}
+      propertyPath: m_Name
+      value: Green Door
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 820ad5eb82bd7be418c2810350e873c8, type: 3}
@@ -309,6 +321,10 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 2698603880675922822}
     m_Modifications:
+    - target: {fileID: 144161662020922401, guid: f3829627e84ab5c4f88e8f6d006d3e31, type: 3}
+      propertyPath: m_TagString
+      value: Wall
+      objectReference: {fileID: 0}
     - target: {fileID: 180322929575044769, guid: f3829627e84ab5c4f88e8f6d006d3e31, type: 3}
       propertyPath: m_RootOrder
       value: 0

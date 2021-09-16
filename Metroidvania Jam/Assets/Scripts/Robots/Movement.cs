@@ -96,7 +96,10 @@ public abstract class Movement : Entity
 	}
 	public bool GetTurtle() {
 		bool turtled = Mathf.Cos(transform.eulerAngles.z * Mathf.Deg2Rad) < 0.2f;
-		turtled &= onGround;
+		//turtled &= onGround;
+// If Trigger is tall, player is onGround when below platforms
+// // but if it's short, cant detect when turtled.
+		turtled &= rb.velocity.magnitude < 0.4f;
 		return turtled;
 	}
 
@@ -131,12 +134,17 @@ public abstract class Movement : Entity
 	public float walljumpSpeed = 8f;
 	public float walljumpNormalDegrees = 45;
 	int jCharges = 0;
-	bool onGround = false;
-	int onWall = 0; // =1 for left wall, =-1 for right wall
+	[HideInInspector] public bool onGround = false;
+	[HideInInspector] public int onWall = 0; // =1 for left wall, =-1 for right wall
 	public int GetJumpCharges() {
 		return jCharges;
 	}
 	public void ResetCharges() {
+		jCharges = 0;
+		dCharges = 0;
+		jetFuel = 0;
+	}
+	public void RefillCharges() {
 		jCharges = jumpCharges;
 		dCharges = dashCharges;
 		jetFuel = jetpackUseTime;
@@ -144,10 +152,12 @@ public abstract class Movement : Entity
 	public void Jump() {
 		//Debug.Log("Jump" + " " + onGround + " " + onWall);
 		if (jCharges <= 0) return;
-		if (onGround || onWall == 0) {
+		if (onGround || (onWall == 0 && jCharges < jumpCharges)) {
 			jCharges--;
 			rb.velocity = new Vector2(rb.velocity.x, 0);
 			JumpDirection(Vector2.up, jumpSpeed);
+			onGround = false;
+			onWall = 0;
 		}
 	}
 	public void Walljump() {
@@ -167,7 +177,8 @@ public abstract class Movement : Entity
 				transform.position -= 0.5f * Vector3.right;
 				JumpDegrees(180-walljumpNormalDegrees, walljumpSpeed);
 			}
-			
+			onGround = false;
+			onWall = 0;
 		}
 	}
 	void JumpDirection(Vector2 direction, float speed) {
@@ -334,7 +345,7 @@ public abstract class Movement : Entity
 			rTimer = 0;
 			if (launch) {
 				// Launch player up / towards hook
-				Jump();
+				JumpDirection(Vector2.up, jumpSpeed);
 				Vector2 toHook = hookAttachedTo.transform.position - transform.position;
 				JumpDirection(toHook.normalized, hookLaunchSpeed);
 			}
@@ -353,38 +364,36 @@ public abstract class Movement : Entity
 	public virtual void Update() {
 		//Debug.Log(onGround);
 	}
-	public bool GetOnGround() {
-		return onGround;
-	}
-	public virtual void OnTriggerEnter2D(Collider2D info) {
+
+	void OnTriggerEnter2D(Collider2D info) {
 		GameObject other = info.gameObject;
 		if (other.tag == "Ground") {
 			onGround = true;
-			ResetCharges();
+			RefillCharges();
 		}
-		if (other.tag == "Wall") {
+		if (other.tag == "Wall" && !onGround) {
 			if (other.transform.position.x < transform.position.x)
 				onWall = 1;
 			else onWall = -1;
-			ResetCharges();
+			RefillCharges();
 		}
 	}
 	// sloppy bug fix with Stay(): We have multiple Ground triggers in scene.
 	// // when trigger leaves, sets onGround = false even though it's touching a different Ground
-	public virtual void OnTriggerStay2D(Collider2D info) {
+	void OnTriggerStay2D(Collider2D info) {
 		GameObject other = info.gameObject;
 		if (other.tag == "Ground") {
 			onGround = true;
-			ResetCharges();
+			//RefillCharges();
 		}
-		if (other.tag == "Wall") {
+		if (other.tag == "Wall" && !onGround) {
 			if (other.transform.position.x < transform.position.x)
 				onWall = 1;
 			else onWall = -1;
-			ResetCharges();
+			//RefillCharges();
 		}
 	}
-	public virtual void OnTriggerExit2D(Collider2D info) {
+	void OnTriggerExit2D(Collider2D info) {
 		GameObject other = info.gameObject;
 		if (other.tag == "Ground") {
 			onGround = false;

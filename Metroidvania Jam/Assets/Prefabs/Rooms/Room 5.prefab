@@ -38,9 +38,17 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 3129100572321467519}
     m_Modifications:
+    - target: {fileID: 1460462850800828666, guid: e169f6424e6000f4784addd56e10b45e, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: -0.01
+      objectReference: {fileID: 0}
     - target: {fileID: 2566288981792063562, guid: e169f6424e6000f4784addd56e10b45e, type: 3}
       propertyPath: m_LocalPosition.z
       value: -0.2
+      objectReference: {fileID: 0}
+    - target: {fileID: 5362697503067579618, guid: e169f6424e6000f4784addd56e10b45e, type: 3}
+      propertyPath: m_TagString
+      value: Wall
       objectReference: {fileID: 0}
     - target: {fileID: 5398874823764345637, guid: e169f6424e6000f4784addd56e10b45e, type: 3}
       propertyPath: m_LocalPosition.x
@@ -133,6 +141,10 @@ PrefabInstance:
     - target: {fileID: 9045739367030827288, guid: e169f6424e6000f4784addd56e10b45e, type: 3}
       propertyPath: m_Name
       value: Activated Outlet
+      objectReference: {fileID: 0}
+    - target: {fileID: 9045739367030827288, guid: e169f6424e6000f4784addd56e10b45e, type: 3}
+      propertyPath: m_TagString
+      value: Wall
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: e169f6424e6000f4784addd56e10b45e, type: 3}

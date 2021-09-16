@@ -13,8 +13,9 @@ public class UIAnimations : MonoBehaviour
     }
 
     // temp fix
-    public bool startOrEnd = true;
     public UIAnimations nextAnim;
+    public bool tpToStart = false;
+    public bool endGame = false;
 
     public RenderDataUI data;
     float renderTimer = 0;
@@ -29,8 +30,8 @@ public class UIAnimations : MonoBehaviour
             finished = true;
             // temp fix
             CameraController cc = Camera.main.GetComponent<CameraController>();
-            if (startOrEnd) cc.StartGame();
-            else cc.ExitGame();
+            if (tpToStart) cc.StartGame();
+            if (endGame) cc.ExitGame();
         }
         img.color = data.GetColor(renderTimer);
     }

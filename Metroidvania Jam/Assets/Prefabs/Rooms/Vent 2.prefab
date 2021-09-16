@@ -39,6 +39,10 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 4109615430986874899}
     m_Modifications:
+    - target: {fileID: 281495992896989751, guid: 9a0280291447f054892e35bf003741e4, type: 3}
+      propertyPath: minSpeed
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 6339906141105528572, guid: 9a0280291447f054892e35bf003741e4, type: 3}
       propertyPath: m_Name
       value: Vent 2-2

@@ -11,7 +11,7 @@ GameObject:
   - component: {fileID: 1279220011558679141}
   m_Layer: 0
   m_Name: Room 6
-  m_TagString: Untagged
+  m_TagString: Ground
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -39,6 +39,26 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 1279220011558679141}
     m_Modifications:
+    - target: {fileID: 348913057406171187, guid: 462e5646261afd846ab1169fa88eebd8, type: 3}
+      propertyPath: m_TagString
+      value: Untagged
+      objectReference: {fileID: 0}
+    - target: {fileID: 348913057457684265, guid: 462e5646261afd846ab1169fa88eebd8, type: 3}
+      propertyPath: m_TagString
+      value: Untagged
+      objectReference: {fileID: 0}
+    - target: {fileID: 974182912349105444, guid: 462e5646261afd846ab1169fa88eebd8, type: 3}
+      propertyPath: shatterSpeed
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6056947019881605175, guid: 462e5646261afd846ab1169fa88eebd8, type: 3}
+      propertyPath: m_Name
+      value: Activated Outlet
+      objectReference: {fileID: 0}
+    - target: {fileID: 6056947019881605175, guid: 462e5646261afd846ab1169fa88eebd8, type: 3}
+      propertyPath: m_TagString
+      value: Wall
+      objectReference: {fileID: 0}
     - target: {fileID: 6731099431916779344, guid: 462e5646261afd846ab1169fa88eebd8, type: 3}
       propertyPath: m_Name
       value: Room 6-2
@@ -101,6 +121,14 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 1279220011558679141}
     m_Modifications:
+    - target: {fileID: 4672568469466814368, guid: f0024984aee7ec346b523e5af6708d6e, type: 3}
+      propertyPath: m_Name
+      value: Activated Outlet
+      objectReference: {fileID: 0}
+    - target: {fileID: 4672568469466814368, guid: f0024984aee7ec346b523e5af6708d6e, type: 3}
+      propertyPath: m_TagString
+      value: Wall
+      objectReference: {fileID: 0}
     - target: {fileID: 5314104865007922510, guid: f0024984aee7ec346b523e5af6708d6e, type: 3}
       propertyPath: m_Name
       value: Room 6-1
